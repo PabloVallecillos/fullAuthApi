@@ -102,6 +102,18 @@
     }
 
 }
+@media only screen and ( max-width: 1026px ){
+  .mediafix{
+    display: flex !important;
+    flex-direction: column-reverse !important;
+  }
+
+  .nohidden{
+    display: flex !important;
+    height: 80vh;
+  }
+
+}
 .positioningREG {
   position: absolute;
 }

@@ -3,6 +3,12 @@ const expressJwt = require('express-jwt');
 const path = require('path');
 const fs = require('fs');
 
+exports.facebookController = (req, res) => {
+  
+  console.log(res)
+
+}
+
 exports.uploadController = (req, res) => {
   const { url } = req.body;
 

@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 import authSvg from '../assets/sign.svg';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -6,15 +6,14 @@ import { authenticate, isAuth } from '../helpers/auth';
 import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
+// import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import open from '../assets/open.svg';
 import close from '../assets/close.svg';
 import '../assets/style.css';
-import Video from '../Components/Video'
-
+import Video from '../Components/Video';
+import FacebookLogin from 'react-facebook-login';
 
 const Login = ({ history }) => {
-
   const [isTrue, setItTrue] = useState(false);
 
   const [FormData, setFormData] = useState({
@@ -28,6 +27,28 @@ const Login = ({ history }) => {
   const handleChange = (text) => (e) => {
     setFormData({ ...FormData, [text]: e.target.value });
   };
+
+  // const handleFace = async () => {
+  //   // try {
+  //   //   const res = await axios.get(
+  //   //     `${process.env.REACT_APP_API_URL}/auth/facebook`
+  //   //   );
+  //   //   console.log(res);
+  //   // } catch (error) {
+  //   //   console.log(error);
+  //   // }
+
+  //   axios.get(`${process.env.REACT_APP_API_URL}/auth/facebook`, {
+  //     headers: {
+  //       'Access-Control-Allow-Origin': '*',
+  //     },
+  //   })
+  //   .then((res) => {
+  //     console.log(res)
+  //   })
+  //   .catch((err) => {console.error(err)});
+  // };
+
   // Submit data to backend
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -63,7 +84,7 @@ const Login = ({ history }) => {
           });
           // console.log(err.response);
           // toast.error(err.response.data.error);
-          console.log(err)
+          console.log(err);
         });
     } else {
       toast.error('Please fill all fields');
@@ -210,7 +231,7 @@ const Login = ({ history }) => {
                   </button>
                 )}
               ></GoogleLogin>
-              <FacebookLogin
+              {/* <FacebookLogin
                 appId={`${process.env.REACT_APP_FACEBOOK_CLIENT}`}
                 autoLoad={false}
                 callback={responseFacebook}
@@ -225,7 +246,14 @@ const Login = ({ history }) => {
                     <span className="ml-4">Sign In with Facebook</span>
                   </button>
                 )}
-              />
+              /> */}
+
+              <FacebookLogin
+              appId={`${process.env.REACT_APP_FACEBOOK_CLIENT}`}
+              autoLoad={false}
+              fields="name,email,picture"
+              callback={responseFacebook} /> 
+
               <button
                 onClick={() => {
                   setItTrue(true);
@@ -241,12 +269,10 @@ const Login = ({ history }) => {
                 <div className="modalmio">
                   <div className="squaremio">
                     <h1>FACE RECOGNITION</h1>
-                    
-                    <Video />
 
+                    <Video />
                   </div>
-                  <div className="squaremio2"> 
-                  </div>
+                  <div className="squaremio2"></div>
                 </div>
               )}
             </div>

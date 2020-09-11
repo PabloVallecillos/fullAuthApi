@@ -5,6 +5,8 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const fileUpload = require('express-fileupload');
 const path = require('path');
+const passport = require('passport');
+const FacebookStrategy = require('passport-facebook').Strategy;
 // Config .env to ./config/config.env
 require('dotenv').config({
   path: './config/config.env',
@@ -12,22 +14,36 @@ require('dotenv').config({
 
 const app = express();
 
-// Set up a whitelist and check against it:
-// var whitelist = ['https://fullauth.netlify.app']
-// var corsOptions = {
-//   origin: function (origin, callback) {
-//     if (whitelist.indexOf(origin) !== -1) {
-//       callback(null, true)
-//     } else {
-//       callback(new Error('Not allowed by CORS'))
-//     }
-//   }
-// }
 
-// Then pass them to cors:
-app.use(cors({
-  origin: process.env.CLIENT_URL
-}));
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+  })
+);
+
+passport.serializeUser((user, cb) => {
+  cb(null, user);
+});
+passport.deserializeUser((user, cb) => {
+  cb(null, user);
+});
+
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: process.env.FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+      callbackURL: '/auth/facebook/callback',
+    },
+    (accessToken, refreshToken, profile, cb) => {
+      console.log(chalk.blue(JSON.stringify(profile)));
+      return cb(null, profile);
+    }
+  )
+);
+app.use(passport.initialize());
+
 
 // Connect DB
 connectDB();
@@ -62,14 +78,24 @@ app.use((req, res, next) => {
   });
 });
 
-// Serve static assets if in production 
-if(process.env.NODE_ENV === 'production'){
+// app.get('/auth/facebook', passport.authenticate('facebook'));
+// app.get(
+//   '/auth/facebook/callback',
+//   passport.authenticate('facebook'),
+//   (req, res) => {
+
+//     res.redirect('/private');
+//   }
+// );
+
+// Serve static assets if in production
+if (process.env.NODE_ENV === 'production') {
   app.use(morgan('dev'));
-  // Set static folder 
-  app.use(express.static("client/build"))
+  // Set static folder
+  app.use(express.static('client/build'));
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
-  })
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+  });
 }
 
 const PORT = process.env.PORT || 5000;
