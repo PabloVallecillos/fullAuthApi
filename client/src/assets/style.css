@@ -1,0 +1,107 @@
+.mio {
+  width: 37px;
+  margin-top: 36px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+/* .open{
+    background-image: url('https://img.icons8.com/plasticine/100/000000/visible.png') !important;
+    background-position: center !important;
+    background-size: contain !important;
+    z-index: 99 !important;
+} */
+
+.fileUpload {
+  margin: 0 !important;
+}
+.fileUpload:hover {
+  color: red;
+}
+
+.progress {
+  width: 249px;
+  position: absolute;
+}
+
+.classNav {
+  position: fixed !important;
+}
+
+.centered {
+  display: flex !important;
+}
+.plus_mio {
+  width: 50px;
+  z-index: 99;
+  position: absolute;
+  top: 225px;
+  color: white;
+}
+.miorounder {
+  width: 300px !important;
+  height: 300px !important;
+  max-width: 300px;
+  max-height: 300px;
+  position: absolute;
+  top: 100px;
+}
+.miorounder:hover {
+  cursor: pointer;
+  filter: grayscale(0.6);
+}
+
+.modalmio {
+  position: absolute;
+  width: 100vw;
+  height: calc(110vh + 100px);
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+}
+.squaremio2 {
+  background-color: rgb(148, 31, 31);
+  flex: 1;
+  width: 65%;
+}
+.squaremio {
+  width: 65%;
+  flex: 1;
+  background-color: rgb(212, 154, 154);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.videoReg {
+  display: flex;
+}
+.miobutn{
+    position: absolute;
+    background-color: white;
+    align-self: flex-end;
+    
+    z-index: 9999999!important;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    width: 641px;
+}
+@media only screen and ( max-width: 920px ){
+    .positioningREG {
+        width: 66vw!important;
+    }
+    
+    .miobutn {
+        width: 65vw !important;
+    }
+
+}
+.positioningREG {
+  position: absolute;
+}
