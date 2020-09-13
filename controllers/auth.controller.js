@@ -1,5 +1,5 @@
 const User = require('../models/auth.model');
-const expressJwt  = require('express-jwt');
+const expressJwt = require('express-jwt');
 const _ = require('lodash');
 const { OAuth2Client } = require('google-auth-library');
 const fetch = require('node-fetch');
@@ -11,14 +11,19 @@ const { errorHandler } = require('../helpers/dbErrorHandling');
 const sgMail = require('@sendgrid/mail');
 const path = require('path');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
+const xoauth2 = require('xoauth2');
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.registerController = (req, res) => {
   const { name, email, password } = req.body;
+
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
     const firstError = errors.array().map((error) => error.msg)[0];
+    console.log(firstError);
     return res.status(422).json({ error: firstError });
   } else {
     User.findOne({ email }).exec((err, user) => {
@@ -41,32 +46,121 @@ exports.registerController = (req, res) => {
     }
   );
 
-  // Email data sending
-  const emailData = {
-    from: process.env.EMAIL_FROM,
-    to: email,
-    subject: 'Account activation link',
-    html: `
-      <h1> Please Click to link to activate </h1> 
-      <p> ${process.env.CLIENT_URL}/users/activate/${token} </p>
-      <p> This email contains sensitive info </p>
-      <p> ${process.env.CLIENT_URL} </p>`,
-  };
+  // // Email data sending
+  // const emailData = {
+  //   from: process.env.EMAIL_FROM,
+  //   to: email,
+  //   subject: 'Account activation link',
+  //   html: `
+  //     <h1> Please Click to link to activate </h1>
+  //     <p> ${process.env.CLIENT_URL}/users/activate/${token} </p>
+  //     <p> This email contains sensitive info </p>
+  //     <p> ${process.env.CLIENT_URL} </p>`,
+  // };
 
-  sgMail
-    .send(emailData)
-    .then((sent) => {
+  // sgMail
+  //   .send(emailData)
+  //   .then((sent) => {
+
+  //     return res.json({
+  //       message: `Email has been sent to ${email}`,
+  //     });
+  //   })
+  //   .catch((err) => {
+  //     console.log(err +'asdfasdf')
+  //     return res.status(400).json({
+  //       error: errorHandler(err),
+  //     });
+  //   });
+  // (async () => {
+  //   try {
+  //     await sgMail.send(emailData);
+  //     // return res.json({
+  //     //   message: `Email has been sent to ${email}`,
+  //     // });
+  //   } catch (error) {
+  //     console.error(error);
+
+  //     if (error.response) {
+  //       console.error(error.response.body)
+  //     }
+  //   }
+  // })();
+
+  // async function start() {
+  //   const transporter = nodemailer.createTransport({
+  //     host: 'smtp.gmail.com',
+  //     port: 465,
+  //     secure: true,
+  //     auth: {
+  //       type: 'OAuth2',
+  //       user: 'vallecillospablo@gmail.com',
+  //       serviceClient: '116580561011771305809',
+  //       privateKey: '\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDjyOsjjlHdIJIH\ncnraNQ0Vs9qwJZfnPclY34/mfp/UepP33O0E+Ya0uOKExCphNZWeSp2hw1m6DnSs\n7xIEJ+jMUMRNHbLBnbRiqpM9NpKl2f2lpT5zTiAauZcK7uOTwS6FOIZ4TntShUDF\njHn/WK06MKsmc0M6RhNKzQlLGHTroAfhC4USRUJRQBPn0KKUWsroBNCLlQ5/CF6Z\nHDh//YP09NuntUDFLGRg38iSetns7884Gv6j2IN8bSfBXA1q1mA1VjTwTybZCJDJ\n3tddBMIt7PHcAbP2tVflQfsDfpfp2HqwdweQEh7CKqrohi/bOhdOf1MQ9NeCUIz9\nyi9L/kpJAgMBAAECggEAAqWPgeLB9cFOoRKF9eoe5E0qMdjF+pRftg4m9GUtQ0FH\nXd5tzJx/obLyQtuqqGWAfw3b5gjIjp5jYa0Hdw/lpxYbKdA6BwDnmyvjORdcvdua\nFGYmox1ZxyW36RMchtd8TGT7PwOecDeHKKR4uGxV2vK80l4NfmxZBgn63SoEFcbJ\nI2LzYcP36Cq9CH2pFbQOgElnl6zxY7zoHrIbfQQ6rz4VfpjJQ9WVl3cGuh98PU2Y\nQCXgHaKlwRNV0zJ4a0efNaiSI1bTYWTfRCfb6nBddG/w25r+UwEG3KIYvFbY3yII\n9vHvvim6oq9bxIKIfbSCipbNfGmzrbtV8JwutTAgOQKBgQD40V4kXjxy1uz76k0O\nXmhdyAcK+n8hXdxKx85aCy7hWwpv4Nh8cxoJjzaxkCbxmH8EW8ZBTuZilb5Fnc5D\nwt4Mb0kLJK7Dsyap0GyJZiB+w18OR9xVaGa5AK5Cndbh/3k61OFJ6/2xSFceyLww\nPGZJZNFzhOqNELxkYAPzN5mlhQKBgQDqXCDDzaJi2L3uZSj0EUGHEDj60vb51/Qm\nxvltH1g7km30imyHmY9wJlZ+VXXoZqZlFcZyh0i7TNnymcoXu8pxQ1oMaPhkazfo\n+2vko+3hUYtEt/+9sf37n9esJeviTDs+2x0oWBzmXGmqwrwL+pqSNTQmvpJpj/+C\nj/Ms/sP69QKBgDPcj97MtZTKL4MihwUjsGU7uBwVskHmKnB7zQr/obnfHAHNv9HQ\nu/CaJTBFd5iLzI3AA0bBh0utIoeoKMH+8AFvgK4N609nG/vxMW5CFyvU1Q9I8yfq\nJt8QwUGpXIymj0Iv9PVPdwVoqqAD/xWewUMy/GUzox/cCShyyt/7Cs9xAoGAdYOo\nskYEbQg9hLKY7HlSoEUULUFnsjQFKwSOwZb8CTMNi5d1gDER6axvpn132AbQ3NMk\nZP1NDQ4mIy3WVjxF8LFTD/H6y2+v41Ve7pD8kQTwjo6s4BPGRUwLOzjwpNKQyp3Y\nawhzxVcFbSikXmVU6IdhFSRuChy4hGFmEGPXJZkCgYBTOoAguLO9Pg1AdpxIHVX/\nnE6Qb4+gsLNSePgcwlTr6UKCjzMDKGJOnUbcUC2LJSt3S8oOQU4sLW6YSlfvDWnR\ntsHwItm8tG3cZRu5pZqs6uOfOQySiYfI1pH0H41FWtX9T2VyJkhE3E3yxzZHCUW4\ncNmyPatfaWUJOIxe97IV5g==\n',
+  //     },
+  //   });
+  //   try {
+  //     await transporter.verify();
+  //     await transporter.sendMail({
+  //       from: 'vallecillospablo@gmail.com',
+  //       to: email,
+  //       subject: 'John Doe opens new farm YOU GOTTA SEE IT',
+  //       text: 'It is beautiful.',
+  //       html:
+  //            `<h1> Please Click to link to activate </h1>
+  //            <p> ${process.env.CLIENT_URL}/users/activate/${token} </p>
+  //            <p> This email contains sensitive info </p>
+  //            <p> ${process.env.CLIENT_URL} </p>`,
+
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
+
+  // start();
+
+  async function main() {
+    let transporter = nodemailer.createTransport({
+      host: 'smtp.googlemail.com', // Gmail Host
+      port: 465, // Port
+      secure: true, // this is true as port is 465
+      auth: {
+        type: 'Oauth2',
+        user: 'vallecillospablo@gmail.com',
+        clientId:
+          '139793166023-23ujo2m3273guo49gvot3jq04hcb8vrh.apps.googleusercontent.com',
+        clientSecret: 'oM2p9z0nknNY9U6Qos6xLPES',
+        refreshToken:
+          '1//04D0qvB75v2yLCgYIARAAGAQSNwF-L9IrDTNax03XngMqwBiSMgSheRM7LwyhOjSqBSE4pdiH3PZX0omqHBVOjarE3-pgVvCWKBw',
+      },
+    });
+
+    // send mail with defined transport object
+    let info = await transporter.sendMail({
+      from: 'Pablo <vallecillospablo@gmail.com>', // sender address
+      to: email, // list of receivers
+      subject: 'Welcome Email', // Subject line
+      //text: "Hello world?", // plain text body
+      html: `${process.env.CLIENT_URL}/users/activate/${token}`, // html body
+    });
+
+    console.log('Message sent: %s', info.messageId);
+  }
+
+  main()
+    .then(() => {
       return res.json({
         message: `Email has been sent to ${email}`,
       });
     })
     .catch((err) => {
+      console.log(err)
       return res.status(400).json({
         error: errorHandler(err),
       });
     });
 };
-
 
 // Register for backend done let's create for it
 // Activation and save to database
@@ -215,6 +309,7 @@ exports.forgetController = (req, res) => {
               return res.json({ message: `Email has been sent to ${email}` });
             })
             .catch((err) => {
+              console.log(err);
               return res.json({ error: err.message });
             });
         }
@@ -330,34 +425,34 @@ exports.signinController = (req, res) => {
   const { email, password } = req.body;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const firstError = errors.array().map(error => error.msg)[0];
+    const firstError = errors.array().map((error) => error.msg)[0];
     return res.status(422).json({
-      errors: firstError
+      errors: firstError,
     });
   } else {
     // check if user exist
     User.findOne({
-      email
+      email,
     }).exec((err, user) => {
       if (err || !user) {
         return res.status(400).json({
-          errors: 'User with that email does not exist. Please signup'
+          errors: 'User with that email does not exist. Please signup',
         });
       }
       // authenticate
       if (!user.authenticate(password)) {
         return res.status(400).json({
-          errors: 'Email and password do not match'
+          errors: 'Email and password do not match',
         });
       }
       // generate a token and send to client
       const token = jwt.sign(
         {
-          _id: user._id
+          _id: user._id,
         },
         process.env.JWT_SECRET,
         {
-          expiresIn: '7d'
+          expiresIn: '7d',
         }
       );
       const { _id, name, email, role } = user;
@@ -368,8 +463,8 @@ exports.signinController = (req, res) => {
           _id,
           name,
           email,
-          role
-        }
+          role,
+        },
       });
     });
   }
@@ -377,22 +472,22 @@ exports.signinController = (req, res) => {
 
 exports.requireSignin = expressJwt({
   secret: process.env.JWT_SECRET,
-  algorithms: ['HS256'] // req.user._id
+  algorithms: ['HS256'], // req.user._id
 });
 
 exports.adminMiddleware = (req, res, next) => {
   User.findById({
-    _id: req.user._id
+    _id: req.user._id,
   }).exec((err, user) => {
     if (err || !user) {
       return res.status(400).json({
-        error: 'User not found'
+        error: 'User not found',
       });
     }
 
     if (user.role !== 'admin') {
       return res.status(400).json({
-        error: 'Admin resource. Access denied.'
+        error: 'Admin resource. Access denied.',
       });
     }
 
@@ -449,5 +544,3 @@ exports.facebookController = (req, res) => {
       });
     });
 };
-
-

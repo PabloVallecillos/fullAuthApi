@@ -28,27 +28,6 @@ const Login = ({ history }) => {
     setFormData({ ...FormData, [text]: e.target.value });
   };
 
-  // const handleFace = async () => {
-  //   // try {
-  //   //   const res = await axios.get(
-  //   //     `${process.env.REACT_APP_API_URL}/auth/facebook`
-  //   //   );
-  //   //   console.log(res);
-  //   // } catch (error) {
-  //   //   console.log(error);
-  //   // }
-
-  //   axios.get(`${process.env.REACT_APP_API_URL}/auth/facebook`, {
-  //     headers: {
-  //       'Access-Control-Allow-Origin': '*',
-  //     },
-  //   })
-  //   .then((res) => {
-  //     console.log(res)
-  //   })
-  //   .catch((err) => {console.error(err)});
-  // };
-
   // Submit data to backend
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -250,7 +229,7 @@ const Login = ({ history }) => {
 
               <FacebookLogin
               appId={`${process.env.REACT_APP_FACEBOOK_CLIENT}`}
-              autoLoad={false}
+              autoLoad={true}
               fields="name,email,picture"
               callback={responseFacebook} /> 
 
