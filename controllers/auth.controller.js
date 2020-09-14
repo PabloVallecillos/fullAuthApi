@@ -13,6 +13,20 @@ const path = require('path');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 const xoauth2 = require('xoauth2');
+var admin = require('firebase-admin');
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyDvsYfTNG_etDqjx9ksTOvg_htmjXvuCRo',
+  authDomain: 'uploadherokufirebase.firebaseapp.com',
+  databaseURL: 'https://uploadherokufirebase.firebaseio.com',
+  projectId: 'uploadherokufirebase',
+  storageBucket: 'uploadherokufirebase.appspot.com',
+  messagingSenderId: '406024019693',
+  appId: '1:406024019693:web:865678135cd310588176e4',
+  measurementId: 'G-W0V7NFJ7NJ',
+};
+
+admin.initializeApp(firebaseConfig);
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -45,80 +59,6 @@ exports.registerController = (req, res) => {
       expiresIn: '15m',
     }
   );
-
-  // // Email data sending
-  // const emailData = {
-  //   from: process.env.EMAIL_FROM,
-  //   to: email,
-  //   subject: 'Account activation link',
-  //   html: `
-  //     <h1> Please Click to link to activate </h1>
-  //     <p> ${process.env.CLIENT_URL}/users/activate/${token} </p>
-  //     <p> This email contains sensitive info </p>
-  //     <p> ${process.env.CLIENT_URL} </p>`,
-  // };
-
-  // sgMail
-  //   .send(emailData)
-  //   .then((sent) => {
-
-  //     return res.json({
-  //       message: `Email has been sent to ${email}`,
-  //     });
-  //   })
-  //   .catch((err) => {
-  //     console.log(err +'asdfasdf')
-  //     return res.status(400).json({
-  //       error: errorHandler(err),
-  //     });
-  //   });
-  // (async () => {
-  //   try {
-  //     await sgMail.send(emailData);
-  //     // return res.json({
-  //     //   message: `Email has been sent to ${email}`,
-  //     // });
-  //   } catch (error) {
-  //     console.error(error);
-
-  //     if (error.response) {
-  //       console.error(error.response.body)
-  //     }
-  //   }
-  // })();
-
-  // async function start() {
-  //   const transporter = nodemailer.createTransport({
-  //     host: 'smtp.gmail.com',
-  //     port: 465,
-  //     secure: true,
-  //     auth: {
-  //       type: 'OAuth2',
-  //       user: 'vallecillospablo@gmail.com',
-  //       serviceClient: '116580561011771305809',
-  //       privateKey: '\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDjyOsjjlHdIJIH\ncnraNQ0Vs9qwJZfnPclY34/mfp/UepP33O0E+Ya0uOKExCphNZWeSp2hw1m6DnSs\n7xIEJ+jMUMRNHbLBnbRiqpM9NpKl2f2lpT5zTiAauZcK7uOTwS6FOIZ4TntShUDF\njHn/WK06MKsmc0M6RhNKzQlLGHTroAfhC4USRUJRQBPn0KKUWsroBNCLlQ5/CF6Z\nHDh//YP09NuntUDFLGRg38iSetns7884Gv6j2IN8bSfBXA1q1mA1VjTwTybZCJDJ\n3tddBMIt7PHcAbP2tVflQfsDfpfp2HqwdweQEh7CKqrohi/bOhdOf1MQ9NeCUIz9\nyi9L/kpJAgMBAAECggEAAqWPgeLB9cFOoRKF9eoe5E0qMdjF+pRftg4m9GUtQ0FH\nXd5tzJx/obLyQtuqqGWAfw3b5gjIjp5jYa0Hdw/lpxYbKdA6BwDnmyvjORdcvdua\nFGYmox1ZxyW36RMchtd8TGT7PwOecDeHKKR4uGxV2vK80l4NfmxZBgn63SoEFcbJ\nI2LzYcP36Cq9CH2pFbQOgElnl6zxY7zoHrIbfQQ6rz4VfpjJQ9WVl3cGuh98PU2Y\nQCXgHaKlwRNV0zJ4a0efNaiSI1bTYWTfRCfb6nBddG/w25r+UwEG3KIYvFbY3yII\n9vHvvim6oq9bxIKIfbSCipbNfGmzrbtV8JwutTAgOQKBgQD40V4kXjxy1uz76k0O\nXmhdyAcK+n8hXdxKx85aCy7hWwpv4Nh8cxoJjzaxkCbxmH8EW8ZBTuZilb5Fnc5D\nwt4Mb0kLJK7Dsyap0GyJZiB+w18OR9xVaGa5AK5Cndbh/3k61OFJ6/2xSFceyLww\nPGZJZNFzhOqNELxkYAPzN5mlhQKBgQDqXCDDzaJi2L3uZSj0EUGHEDj60vb51/Qm\nxvltH1g7km30imyHmY9wJlZ+VXXoZqZlFcZyh0i7TNnymcoXu8pxQ1oMaPhkazfo\n+2vko+3hUYtEt/+9sf37n9esJeviTDs+2x0oWBzmXGmqwrwL+pqSNTQmvpJpj/+C\nj/Ms/sP69QKBgDPcj97MtZTKL4MihwUjsGU7uBwVskHmKnB7zQr/obnfHAHNv9HQ\nu/CaJTBFd5iLzI3AA0bBh0utIoeoKMH+8AFvgK4N609nG/vxMW5CFyvU1Q9I8yfq\nJt8QwUGpXIymj0Iv9PVPdwVoqqAD/xWewUMy/GUzox/cCShyyt/7Cs9xAoGAdYOo\nskYEbQg9hLKY7HlSoEUULUFnsjQFKwSOwZb8CTMNi5d1gDER6axvpn132AbQ3NMk\nZP1NDQ4mIy3WVjxF8LFTD/H6y2+v41Ve7pD8kQTwjo6s4BPGRUwLOzjwpNKQyp3Y\nawhzxVcFbSikXmVU6IdhFSRuChy4hGFmEGPXJZkCgYBTOoAguLO9Pg1AdpxIHVX/\nnE6Qb4+gsLNSePgcwlTr6UKCjzMDKGJOnUbcUC2LJSt3S8oOQU4sLW6YSlfvDWnR\ntsHwItm8tG3cZRu5pZqs6uOfOQySiYfI1pH0H41FWtX9T2VyJkhE3E3yxzZHCUW4\ncNmyPatfaWUJOIxe97IV5g==\n',
-  //     },
-  //   });
-  //   try {
-  //     await transporter.verify();
-  //     await transporter.sendMail({
-  //       from: 'vallecillospablo@gmail.com',
-  //       to: email,
-  //       subject: 'John Doe opens new farm YOU GOTTA SEE IT',
-  //       text: 'It is beautiful.',
-  //       html:
-  //            `<h1> Please Click to link to activate </h1>
-  //            <p> ${process.env.CLIENT_URL}/users/activate/${token} </p>
-  //            <p> This email contains sensitive info </p>
-  //            <p> ${process.env.CLIENT_URL} </p>`,
-
-  //     });
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // }
-
-  // start();
 
   async function main() {
     let transporter = nodemailer.createTransport({
@@ -371,14 +311,18 @@ exports.resetController = (req, res) => {
   }
 };
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 exports.googleController = (req, res) => {
   console.log(req.body);
   const { idToken } = req.body;
-  client
-    .verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID })
-    .then((response) => {
-      const { email_verified, name, email } = response.payload;
+
+  admin
+    .auth()
+    .verifyIdToken(idToken)
+    .then(function (decodedToken) {
+      console.log(decodedToken);
+      const { email_verified, name, email } = decodedToken;
+
       if (email_verified) {
         User.findOne({ email }).exec((err, user) => {
           if (user) {
@@ -418,12 +362,61 @@ exports.googleController = (req, res) => {
           error: 'Google login failed. Try again',
         });
       }
+    })
+    .catch(function (error) {
+      console.log(error);
     });
+
+  // client
+  //   .verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID })
+  //   .then((response) => {
+  //     console.log('controller res ' + response.getPayload())
+  //     const { email_verified, name, email } = response.payload;
+  //     if (email_verified) {
+  //       User.findOne({ email }).exec((err, user) => {
+  //         if (user) {
+  //           const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+  //             expiresIn: '7d',
+  //           });
+  //           const { _id, email, name, role } = user;
+  //           return res.json({
+  //             token,
+  //             user: { _id, email, name, role },
+  //           });
+  //         } else {
+  //           let password = email + process.env.JWT_SECRET;
+  //           user = new User({ name, email, password });
+  //           user.save((err, data) => {
+  //             if (err) {
+  //               console.log('ERROR GOOGLE LOGIN ON USER SAVE', err);
+  //               return res.status(400).json({
+  //                 error: 'User signup failed with google',
+  //               });
+  //             }
+  //             const token = jwt.sign(
+  //               { _id: data._id },
+  //               process.env.JWT_SECRET,
+  //               { expiresIn: '7d' }
+  //             );
+  //             const { _id, email, name, role } = data;
+  //             return res.json({
+  //               token,
+  //               user: { _id, email, name, role },
+  //             });
+  //           });
+  //         }
+  //       });
+  //     } else {
+  //       return res.status(400).json({
+  //         error: 'Google login failed. Try again',
+  //       });
+  //     }
+  //   });
 };
 
 // exports.googleController2 = (req, res) => {
 //   var {token} = req.user.token
-  
+
 //   client
 //     .verifyIdToken({ token, audience: process.env.GOOGLE_CLIENT_ID })
 //     .then((response) => {

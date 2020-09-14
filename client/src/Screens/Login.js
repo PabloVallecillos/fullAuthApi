@@ -12,7 +12,7 @@ import close from '../assets/close.svg';
 import '../assets/style.css';
 import Video from '../Components/Video';
 import FacebookLogin from 'react-facebook-login';
-// import GoogleLogin from '../Components/GoogleLogin';
+import GoogleLogin2 from '../Components/GoogleLogin';
 const Login = ({ history }) => {
   const [isTrue, setItTrue] = useState(false);
 
@@ -91,6 +91,7 @@ const Login = ({ history }) => {
         informParent(res);
       })
       .catch((error) => {
+        
         console.log('GOOGLE SIGNIN ERROR', error.response);
       });
   };
@@ -201,7 +202,7 @@ const Login = ({ history }) => {
               >
                 Login google
               </a> */}
-              {/* <GoogleLogin /> */}
+              <GoogleLogin2 />
 
               <GoogleLogin
                 clientId={`${process.env.REACT_APP_GOOGLE_CLIENT_ID}`}
