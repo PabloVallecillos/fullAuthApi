@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+var passport = require('passport');
 // Validation
 const {
   validSign,
@@ -17,6 +17,7 @@ const {
   forgetController,
   resetController,
   googleController,
+  googleController2,
   facebookController,
 } = require('../controllers/auth.controller.js');
 
@@ -28,5 +29,15 @@ router.put('/password/reset', resetPasswordValidator, resetController);
 router.post('/googlelogin', googleController);
 router.post('/facebooklogin', facebookController);
 
+/* GET Google Authentication API. */
+router.get(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+router.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/', session: false }),
+  googleController2
+);
 
 module.exports = router;

@@ -14,6 +14,7 @@ const fs = require('fs');
 const nodemailer = require('nodemailer');
 const xoauth2 = require('xoauth2');
 
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.registerController = (req, res) => {
@@ -420,6 +421,12 @@ exports.googleController = (req, res) => {
       }
     });
 };
+
+exports.googleController2 = (req, res) => {
+    var token = req.user.token;
+    console.log('back' + token);
+}
+
 
 exports.signinController = (req, res) => {
   const { email, password } = req.body;

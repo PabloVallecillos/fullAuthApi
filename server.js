@@ -14,36 +14,11 @@ require('dotenv').config({
 
 const app = express();
 
-
-
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
   })
 );
-
-passport.serializeUser((user, cb) => {
-  cb(null, user);
-});
-passport.deserializeUser((user, cb) => {
-  cb(null, user);
-});
-
-passport.use(
-  new FacebookStrategy(
-    {
-      clientID: process.env.FACEBOOK_CLIENT_ID,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-      callbackURL: '/auth/facebook/callback',
-    },
-    (accessToken, refreshToken, profile, cb) => {
-      console.log(chalk.blue(JSON.stringify(profile)));
-      return cb(null, profile);
-    }
-  )
-);
-app.use(passport.initialize());
-
 
 // Connect DB
 connectDB();
@@ -67,6 +42,7 @@ if (process.env.NODE_ENV === 'development') {
 const authRouter = require('./routes/auth.route');
 const userRouter = require('./routes/user.route');
 
+app.use(passport.initialize());
 // Use Routes
 app.use(fileUpload());
 app.use('/api/', authRouter);
@@ -77,16 +53,7 @@ app.use((req, res, next) => {
     message: 'Page Not Founded',
   });
 });
-
-// app.get('/auth/facebook', passport.authenticate('facebook'));
-// app.get(
-//   '/auth/facebook/callback',
-//   passport.authenticate('facebook'),
-//   (req, res) => {
-
-//     res.redirect('/private');
-//   }
-// );
+require('./config/passport');
 
 // Serve static assets if in production
 if (process.env.NODE_ENV === 'production') {
