@@ -5,6 +5,8 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const fileUpload = require('express-fileupload');
 const path = require('path');
+const passport = require('passport');
+const FacebookStrategy = require('passport-facebook').Strategy;
 // Config .env to ./config/config.env
 require('dotenv').config({
   path: './config/config.env',
@@ -12,22 +14,11 @@ require('dotenv').config({
 
 const app = express();
 
-// Set up a whitelist and check against it:
-// var whitelist = ['https://fullauth.netlify.app']
-// var corsOptions = {
-//   origin: function (origin, callback) {
-//     if (whitelist.indexOf(origin) !== -1) {
-//       callback(null, true)
-//     } else {
-//       callback(new Error('Not allowed by CORS'))
-//     }
-//   }
-// }
-
-// Then pass them to cors:
-app.use(cors({
-  origin: process.env.CLIENT_URL
-}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+  })
+);
 
 // Connect DB
 connectDB();
@@ -51,6 +42,12 @@ if (process.env.NODE_ENV === 'development') {
 const authRouter = require('./routes/auth.route');
 const userRouter = require('./routes/user.route');
 
+app.all('/*', function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
+});
+
+app.use(passport.initialize());
 // Use Routes
 app.use(fileUpload());
 app.use('/api/', authRouter);
@@ -61,15 +58,16 @@ app.use((req, res, next) => {
     message: 'Page Not Founded',
   });
 });
+require('./config/passport');
 
-// Serve static assets if in production 
-if(process.env.NODE_ENV === 'production'){
+// Serve static assets if in production
+if (process.env.NODE_ENV === 'production') {
   app.use(morgan('dev'));
-  // Set static folder 
-  app.use(express.static("client/build"))
+  // Set static folder
+  app.use(express.static('client/build'));
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
-  })
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+  });
 }
 
 const PORT = process.env.PORT || 5000;

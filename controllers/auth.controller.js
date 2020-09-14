@@ -1,5 +1,5 @@
 const User = require('../models/auth.model');
-const expressJwt  = require('express-jwt');
+const expressJwt = require('express-jwt');
 const _ = require('lodash');
 const { OAuth2Client } = require('google-auth-library');
 const fetch = require('node-fetch');
@@ -11,14 +11,33 @@ const { errorHandler } = require('../helpers/dbErrorHandling');
 const sgMail = require('@sendgrid/mail');
 const path = require('path');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
+const xoauth2 = require('xoauth2');
+var admin = require('firebase-admin');
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyDvsYfTNG_etDqjx9ksTOvg_htmjXvuCRo',
+  authDomain: 'uploadherokufirebase.firebaseapp.com',
+  databaseURL: 'https://uploadherokufirebase.firebaseio.com',
+  projectId: 'uploadherokufirebase',
+  storageBucket: 'uploadherokufirebase.appspot.com',
+  messagingSenderId: '406024019693',
+  appId: '1:406024019693:web:865678135cd310588176e4',
+  measurementId: 'G-W0V7NFJ7NJ',
+};
+
+admin.initializeApp(firebaseConfig);
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.registerController = (req, res) => {
   const { name, email, password } = req.body;
+
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
     const firstError = errors.array().map((error) => error.msg)[0];
+    console.log(firstError);
     return res.status(422).json({ error: firstError });
   } else {
     User.findOne({ email }).exec((err, user) => {
@@ -41,32 +60,47 @@ exports.registerController = (req, res) => {
     }
   );
 
-  // Email data sending
-  const emailData = {
-    from: process.env.EMAIL_FROM,
-    to: email,
-    subject: 'Account activation link',
-    html: `
-      <h1> Please Click to link to activate </h1> 
-      <p> ${process.env.CLIENT_URL}/users/activate/${token} </p>
-      <p> This email contains sensitive info </p>
-      <p> ${process.env.CLIENT_URL} </p>`,
-  };
+  async function main() {
+    let transporter = nodemailer.createTransport({
+      host: 'smtp.googlemail.com', // Gmail Host
+      port: 465, // Port
+      secure: true, // this is true as port is 465
+      auth: {
+        type: 'Oauth2',
+        user: 'vallecillospablo@gmail.com',
+        clientId:
+          '139793166023-23ujo2m3273guo49gvot3jq04hcb8vrh.apps.googleusercontent.com',
+        clientSecret: 'oM2p9z0nknNY9U6Qos6xLPES',
+        refreshToken:
+          '1//04D0qvB75v2yLCgYIARAAGAQSNwF-L9IrDTNax03XngMqwBiSMgSheRM7LwyhOjSqBSE4pdiH3PZX0omqHBVOjarE3-pgVvCWKBw',
+      },
+    });
 
-  sgMail
-    .send(emailData)
-    .then((sent) => {
+    // send mail with defined transport object
+    let info = await transporter.sendMail({
+      from: 'Pablo <vallecillospablo@gmail.com>', // sender address
+      to: email, // list of receivers
+      subject: 'Welcome Email', // Subject line
+      //text: "Hello world?", // plain text body
+      html: `${process.env.CLIENT_URL}/users/activate/${token}`, // html body
+    });
+
+    console.log('Message sent: %s', info.messageId);
+  }
+
+  main()
+    .then(() => {
       return res.json({
         message: `Email has been sent to ${email}`,
       });
     })
     .catch((err) => {
+      console.log(err);
       return res.status(400).json({
         error: errorHandler(err),
       });
     });
 };
-
 
 // Register for backend done let's create for it
 // Activation and save to database
@@ -215,6 +249,7 @@ exports.forgetController = (req, res) => {
               return res.json({ message: `Email has been sent to ${email}` });
             })
             .catch((err) => {
+              console.log(err);
               return res.json({ error: err.message });
             });
         }
@@ -276,14 +311,18 @@ exports.resetController = (req, res) => {
   }
 };
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 exports.googleController = (req, res) => {
   console.log(req.body);
   const { idToken } = req.body;
-  client
-    .verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID })
-    .then((response) => {
-      const { email_verified, name, email } = response.payload;
+
+  admin
+    .auth()
+    .verifyIdToken(idToken)
+    .then(function (decodedToken) {
+      console.log(decodedToken);
+      const { email_verified, name, email } = decodedToken;
+
       if (email_verified) {
         User.findOne({ email }).exec((err, user) => {
           if (user) {
@@ -323,41 +362,140 @@ exports.googleController = (req, res) => {
           error: 'Google login failed. Try again',
         });
       }
+    })
+    .catch(function (error) {
+      console.log(error);
     });
+
+  // client
+  //   .verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID })
+  //   .then((response) => {
+  //     console.log('controller res ' + response.getPayload())
+  //     const { email_verified, name, email } = response.payload;
+  //     if (email_verified) {
+  //       User.findOne({ email }).exec((err, user) => {
+  //         if (user) {
+  //           const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+  //             expiresIn: '7d',
+  //           });
+  //           const { _id, email, name, role } = user;
+  //           return res.json({
+  //             token,
+  //             user: { _id, email, name, role },
+  //           });
+  //         } else {
+  //           let password = email + process.env.JWT_SECRET;
+  //           user = new User({ name, email, password });
+  //           user.save((err, data) => {
+  //             if (err) {
+  //               console.log('ERROR GOOGLE LOGIN ON USER SAVE', err);
+  //               return res.status(400).json({
+  //                 error: 'User signup failed with google',
+  //               });
+  //             }
+  //             const token = jwt.sign(
+  //               { _id: data._id },
+  //               process.env.JWT_SECRET,
+  //               { expiresIn: '7d' }
+  //             );
+  //             const { _id, email, name, role } = data;
+  //             return res.json({
+  //               token,
+  //               user: { _id, email, name, role },
+  //             });
+  //           });
+  //         }
+  //       });
+  //     } else {
+  //       return res.status(400).json({
+  //         error: 'Google login failed. Try again',
+  //       });
+  //     }
+  //   });
 };
+
+// exports.googleController2 = (req, res) => {
+//   var {token} = req.user.token
+
+//   client
+//     .verifyIdToken({ token, audience: process.env.GOOGLE_CLIENT_ID })
+//     .then((response) => {
+//       const { email_verified, name, email } = response.payload;
+//       if (email_verified) {
+//         User.findOne({ email }).exec((err, user) => {
+//           if (user) {
+//             const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+//               expiresIn: '7d',
+//             });
+//             const { _id, email, name, role } = user;
+//             return res.json({
+//               token,
+//               user: { _id, email, name, role },
+//             });
+//           } else {
+//             let password = email + process.env.JWT_SECRET;
+//             user = new User({ name, email, password });
+//             user.save((err, data) => {
+//               if (err) {
+//                 console.log('ERROR GOOGLE LOGIN ON USER SAVE', err);
+//                 return res.status(400).json({
+//                   error: 'User signup failed with google',
+//                 });
+//               }
+//               const token = jwt.sign(
+//                 { _id: data._id },
+//                 process.env.JWT_SECRET,
+//                 { expiresIn: '7d' }
+//               );
+//               const { _id, email, name, role } = data;
+//               return res.json({
+//                 token,
+//                 user: { _id, email, name, role },
+//               });
+//             });
+//           }
+//         });
+//       } else {
+//         return res.status(400).json({
+//           error: 'Google login failed. Try again',
+//         });
+//       }
+//     });
+//   res.redirect('http://localhost:3000/private');
+// };
 
 exports.signinController = (req, res) => {
   const { email, password } = req.body;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const firstError = errors.array().map(error => error.msg)[0];
+    const firstError = errors.array().map((error) => error.msg)[0];
     return res.status(422).json({
-      errors: firstError
+      errors: firstError,
     });
   } else {
     // check if user exist
     User.findOne({
-      email
+      email,
     }).exec((err, user) => {
       if (err || !user) {
         return res.status(400).json({
-          errors: 'User with that email does not exist. Please signup'
+          errors: 'User with that email does not exist. Please signup',
         });
       }
       // authenticate
       if (!user.authenticate(password)) {
         return res.status(400).json({
-          errors: 'Email and password do not match'
+          errors: 'Email and password do not match',
         });
       }
       // generate a token and send to client
       const token = jwt.sign(
         {
-          _id: user._id
+          _id: user._id,
         },
         process.env.JWT_SECRET,
         {
-          expiresIn: '7d'
+          expiresIn: '7d',
         }
       );
       const { _id, name, email, role } = user;
@@ -368,8 +506,8 @@ exports.signinController = (req, res) => {
           _id,
           name,
           email,
-          role
-        }
+          role,
+        },
       });
     });
   }
@@ -377,22 +515,22 @@ exports.signinController = (req, res) => {
 
 exports.requireSignin = expressJwt({
   secret: process.env.JWT_SECRET,
-  algorithms: ['HS256'] // req.user._id
+  algorithms: ['HS256'], // req.user._id
 });
 
 exports.adminMiddleware = (req, res, next) => {
   User.findById({
-    _id: req.user._id
+    _id: req.user._id,
   }).exec((err, user) => {
     if (err || !user) {
       return res.status(400).json({
-        error: 'User not found'
+        error: 'User not found',
       });
     }
 
     if (user.role !== 'admin') {
       return res.status(400).json({
-        error: 'Admin resource. Access denied.'
+        error: 'Admin resource. Access denied.',
       });
     }
 
@@ -449,5 +587,3 @@ exports.facebookController = (req, res) => {
       });
     });
 };
-
-

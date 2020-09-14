@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 import authSvg from '../assets/sign.svg';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -6,15 +6,14 @@ import { authenticate, isAuth } from '../helpers/auth';
 import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
+// import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import open from '../assets/open.svg';
 import close from '../assets/close.svg';
 import '../assets/style.css';
-import Video from '../Components/Video'
-
-
+import Video from '../Components/Video';
+import FacebookLogin from 'react-facebook-login';
+import GoogleLogin2 from '../Components/GoogleLogin';
 const Login = ({ history }) => {
-
   const [isTrue, setItTrue] = useState(false);
 
   const [FormData, setFormData] = useState({
@@ -28,6 +27,7 @@ const Login = ({ history }) => {
   const handleChange = (text) => (e) => {
     setFormData({ ...FormData, [text]: e.target.value });
   };
+
   // Submit data to backend
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -63,7 +63,7 @@ const Login = ({ history }) => {
           });
           // console.log(err.response);
           // toast.error(err.response.data.error);
-          console.log(err)
+          console.log(err);
         });
     } else {
       toast.error('Please fill all fields');
@@ -91,6 +91,7 @@ const Login = ({ history }) => {
         informParent(res);
       })
       .catch((error) => {
+        
         console.log('GOOGLE SIGNIN ERROR', error.response);
       });
   };
@@ -105,6 +106,7 @@ const Login = ({ history }) => {
         informParent(res);
       })
       .catch((err) => {
+        alert(err);
         toast.error('GOOGLE SIGNIN ERROR', err.response);
       });
   };
@@ -116,6 +118,7 @@ const Login = ({ history }) => {
         : history.push('/private');
     });
   };
+  
   const responseGoogle = (res) => {
     console.log(res);
     sendGoogleToken(res.tokenId);
@@ -192,6 +195,15 @@ const Login = ({ history }) => {
             </form>
 
             <div className="flex flex-col items-center">
+              {/* <a
+                className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
+                href="http://localhost:5000/api/auth/google"
+                target="_blank"
+              >
+                Login google
+              </a> */}
+              <GoogleLogin2 />
+
               <GoogleLogin
                 clientId={`${process.env.REACT_APP_GOOGLE_CLIENT_ID}`}
                 onSuccess={responseGoogle}
@@ -210,7 +222,7 @@ const Login = ({ history }) => {
                   </button>
                 )}
               ></GoogleLogin>
-              <FacebookLogin
+              {/* <FacebookLogin
                 appId={`${process.env.REACT_APP_FACEBOOK_CLIENT}`}
                 autoLoad={false}
                 callback={responseFacebook}
@@ -225,7 +237,14 @@ const Login = ({ history }) => {
                     <span className="ml-4">Sign In with Facebook</span>
                   </button>
                 )}
-              />
+              /> */}
+
+              {/* <FacebookLogin
+              appId={`${process.env.REACT_APP_FACEBOOK_CLIENT}`}
+              autoLoad={true}
+              fields="name,email,picture"
+              callback={responseFacebook} />  */}
+
               <button
                 onClick={() => {
                   setItTrue(true);
@@ -233,7 +252,7 @@ const Login = ({ history }) => {
                 className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline mt-5"
               >
                 <div className=" p-2 rounded-full ">
-                  <i class="far fa-smile-wink"></i>
+                  <i className="far fa-smile-wink"></i>
                 </div>
                 <span className="ml-4">Sign In with Face Recognition</span>
               </button>
@@ -241,12 +260,10 @@ const Login = ({ history }) => {
                 <div className="modalmio">
                   <div className="squaremio">
                     <h1>FACE RECOGNITION</h1>
-                    
-                    <Video />
 
+                    <Video />
                   </div>
-                  <div className="squaremio2"> 
-                  </div>
+                  <div className="squaremio2"></div>
                 </div>
               )}
             </div>

@@ -17,7 +17,7 @@ const Reset = ({ match }) => {
       setFormData({ ...FormData, token });
     }
 // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[token, FormData]);
+  }, []);
   const handleChange = (text) => (e) => {
     setFormData({ ...FormData, [text]: e.target.value });
   };
