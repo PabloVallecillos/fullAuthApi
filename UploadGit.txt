@@ -1,0 +1,14 @@
+
+git config --global user.email "pablovallecillosmoya@gmail.com"
+
+git config --global user.name "PabloVallecillos"
+
+git add .
+
+git commit -am 'ot2'
+
+git remote add origin5 https://github.com/PabloVallecillos/fullAuthApi.git
+
+git pull origin5 master
+
+git push origin5 master

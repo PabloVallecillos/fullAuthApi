@@ -1,20 +1,14 @@
 import React from 'react';
 
-function App() {
-
-
-
+function App({ history }) {
+  
   return (
     <div className="App">
-      
-      
-      app
-      
-      
-      
-      
-      
-        
+      <a
+        href="login"
+      >
+        login
+      </a>
         
     </div>
   );

@@ -5,14 +5,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import { authenticate, isAuth } from '../helpers/auth';
 import axios from 'axios';
 import { Redirect } from 'react-router-dom';
-// import { GoogleLogin } from 'react-google-login';
+import { GoogleLogin } from 'react-google-login';
 // import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import open from '../assets/open.svg';
 import close from '../assets/close.svg';
 import '../assets/style.css';
 import Video from '../Components/Video';
 import FacebookLogin from 'react-facebook-login';
-import GoogleLogin from '../Components/GoogleLogin';
+// import GoogleLogin from '../Components/GoogleLogin';
 const Login = ({ history }) => {
   const [isTrue, setItTrue] = useState(false);
 
@@ -22,22 +22,6 @@ const Login = ({ history }) => {
   });
 
   const { email, password1 } = FormData;
-
-  const handleSubmitGoogle2 = async () => {
-    // axios
-    //   .get(`${process.env.REACT_APP_API_URL}/auth/google`,{
-        
-    //   })
-    //   .then((res) => {console.log(res)})
-    //   .catch((err) => console.error(err));
-
-    try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/auth/google`, {headers: {'Access-Control-Allow-Origin': '*'}})
-      console.log(res)
-    } catch (error) {
-      console.log(error)
-    }
-  };
 
   // Handle change from inputs
   const handleChange = (text) => (e) => {
@@ -133,6 +117,7 @@ const Login = ({ history }) => {
         : history.push('/private');
     });
   };
+  
   const responseGoogle = (res) => {
     console.log(res);
     sendGoogleToken(res.tokenId);
@@ -209,15 +194,16 @@ const Login = ({ history }) => {
             </form>
 
             <div className="flex flex-col items-center">
-              <button
+              {/* <a
                 className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
-                onClick={handleSubmitGoogle2}
+                href="http://localhost:5000/api/auth/google"
+                target="_blank"
               >
                 Login google
-              </button>
+              </a> */}
               {/* <GoogleLogin /> */}
 
-              {/* <GoogleLogin
+              <GoogleLogin
                 clientId={`${process.env.REACT_APP_GOOGLE_CLIENT_ID}`}
                 onSuccess={responseGoogle}
                 onFailure={responseGoogle}
@@ -234,7 +220,7 @@ const Login = ({ history }) => {
                     <span className="ml-4">Sign In with Google</span>
                   </button>
                 )}
-              ></GoogleLogin> */}
+              ></GoogleLogin>
               {/* <FacebookLogin
                 appId={`${process.env.REACT_APP_FACEBOOK_CLIENT}`}
                 autoLoad={false}
