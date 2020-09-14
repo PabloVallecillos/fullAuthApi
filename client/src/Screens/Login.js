@@ -13,7 +13,10 @@ import '../assets/style.css';
 import Video from '../Components/Video';
 import FacebookLogin from 'react-facebook-login';
 import GoogleLogin2 from '../Components/GoogleLogin';
+import firebase from '../firebase';
+
 const Login = ({ history }) => {
+
   const [isTrue, setItTrue] = useState(false);
 
   const [FormData, setFormData] = useState({
@@ -128,6 +131,45 @@ const Login = ({ history }) => {
     sendFacebookToken(response.userID, response.accessToken);
   };
 
+  const handleSubmitGoogle = () => {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    firebase
+      .auth()
+      .signInWithPopup(provider)
+      .then(function (result) {
+        
+        firebase
+          .auth()
+          .currentUser.getIdToken()
+          .then(function (idToken) {
+            axios
+              .post(`${process.env.REACT_APP_API_URL}/googlelogin`, {
+                idToken: idToken,
+              })
+              .then((res) => {
+                console.log(JSON.stringify(res));
+                
+                informParent(res);
+                
+              })
+              .catch((err) => {
+                
+                console.log(err)
+              });
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+
+        // var user = result.user;
+        // console.log('firebase  ' + user)
+        // // ...
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
       {isAuth() ? <Redirect to="/" /> : null}
@@ -202,9 +244,14 @@ const Login = ({ history }) => {
               >
                 Login google
               </a> */}
-              <GoogleLogin2 />
+              <button
+                className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
+                onClick={handleSubmitGoogle}
+              >
+                Login google
+              </button>
 
-              <GoogleLogin
+              {/* <GoogleLogin
                 clientId={`${process.env.REACT_APP_GOOGLE_CLIENT_ID}`}
                 onSuccess={responseGoogle}
                 onFailure={responseGoogle}
@@ -221,30 +268,8 @@ const Login = ({ history }) => {
                     <span className="ml-4">Sign In with Google</span>
                   </button>
                 )}
-              ></GoogleLogin>
-              {/* <FacebookLogin
-                appId={`${process.env.REACT_APP_FACEBOOK_CLIENT}`}
-                autoLoad={false}
-                callback={responseFacebook}
-                render={(renderProps) => (
-                  <button
-                    onClick={renderProps.onClick}
-                    className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline mt-5"
-                  >
-                    <div className=" p-2 rounded-full ">
-                      <i className="fab fa-facebook" />
-                    </div>
-                    <span className="ml-4">Sign In with Facebook</span>
-                  </button>
-                )}
-              /> */}
-
-              {/* <FacebookLogin
-              appId={`${process.env.REACT_APP_FACEBOOK_CLIENT}`}
-              autoLoad={true}
-              fields="name,email,picture"
-              callback={responseFacebook} />  */}
-
+              ></GoogleLogin> */}
+          
               <button
                 onClick={() => {
                   setItTrue(true);

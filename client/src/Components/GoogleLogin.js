@@ -3,8 +3,15 @@ import firebase from '../firebase';
 import axios from 'axios';
 import { authenticate, isAuth } from '../helpers/auth';
 
-export default function GoogleLogin({ history }) {
-  
+
+const GoogleLogin = (props) => {
+
+  const redirectToLogin = () => {
+    
+      const { history } = this.props;
+      if(history) history.push('/private');
+    
+  }
 
   const handleSubmitGoogle = () => {
     var provider = new firebase.auth.GoogleAuthProvider();
@@ -12,9 +19,7 @@ export default function GoogleLogin({ history }) {
       .auth()
       .signInWithPopup(provider)
       .then(function (result) {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-
-        // The signed-in user info.
+        
         firebase
           .auth()
           .currentUser.getIdToken()
@@ -25,10 +30,11 @@ export default function GoogleLogin({ history }) {
               })
               .then((res) => {
                 console.log(JSON.stringify(res));
-                informParent(res);
+                // informParent(res);
+                redirectToLogin()
               })
               .catch((err) => {
-                alert(err);
+                
                 console.log(err)
               });
           })
@@ -45,23 +51,24 @@ export default function GoogleLogin({ history }) {
       });
   };
 
-  const informParent = (res) => {
-    authenticate(res, () => {
-      isAuth() && isAuth.role === 'admin'
-        ? history.push('/admin')
-        : history.push('/private');
-    });
-  };
+  // const informParent = (res) => {
+  //   authenticate(res, () => {
+  //     console.log(isAuth())
+  //     isAuth() && isAuth.role === 'admin'
+  //       ? history.push('/admin')
+  //       : history.push('/private');
+  //   });
+  // };
 
-  useEffect(() => {
-    firebase.auth().onAuthStateChanged(function (user) {
-      if (user) {
-        console.log(user);
-      } else {
-        console.log('no user');
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   firebase.auth().onAuthStateChanged(function (user) {
+  //     if (user) {
+  //       console.log(user);
+  //     } else {
+  //       console.log('no user');
+  //     }
+  //   });
+  // }, []);
 
   return (
     <button
@@ -72,3 +79,4 @@ export default function GoogleLogin({ history }) {
     </button>
   );
 }
+export default GoogleLogin
