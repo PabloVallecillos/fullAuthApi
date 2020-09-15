@@ -286,9 +286,11 @@ const Login = ({ history }) => {
                   <div className="squaremio">
                     <h1>FACE RECOGNITION</h1>
 
+                    
+
                     <Video />
                   </div>
-                  <div className="squaremio2"></div>
+                  {/* <div className="squaremio2"></div> */}
                 </div>
               )}
             </div>

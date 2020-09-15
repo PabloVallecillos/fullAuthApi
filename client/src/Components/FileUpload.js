@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { storage } from '../firebase';
 
 const FileUpload = ({ history }) => {
+  
   const [isShown, setIsShown] = useState(false);
   const [imageProfile, setImageProfile] = useState('');
   const [file, setFile] = useState('');

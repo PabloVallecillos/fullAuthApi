@@ -79,11 +79,13 @@
 
 .videoReg {
   display: flex;
+  align-items: center;
+  flex-direction: column;
 }
+
 .miobutn{
-    position: absolute;
+    
     background-color: white;
-    align-self: flex-end;
     
     z-index: 9999999!important;
     display: flex;
@@ -93,14 +95,22 @@
     width: 641px;
 }
 @media only screen and ( max-width: 920px ){
-    .positioningREG {
+    /* .positioningREG {
         width: 66vw!important;
     }
-    
-    .miobutn {
+     */
+    /* .miobutn {
         width: 65vw !important;
+    } */
+    .videoClass, .positioningREG, .mediaCanvas {
+      width: 88vw;
     }
-
+}
+#absolu{
+  position: absolute;
+}
+#download, #download2, #nofile, #nofile2{
+  display: none;
 }
 @media only screen and ( max-width: 1026px ){
   .mediafix{

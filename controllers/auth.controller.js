@@ -228,29 +228,74 @@ exports.forgetController = (req, res) => {
       );
 
       // Send email with this token
-      const emailData = {
-        from: process.env.EMAIL_FROM,
-        to: email,
-        subject: 'Password reset link',
-        html: `
-          <h1> Please Click to link to reset your password !  </h1> 
-          <p> ${process.env.CLIENT_URL}/user/password/reset/${token} </p>
-          <p> This email contains sensitive info </p>
-          <p> ${process.env.CLIENT_URL} </p>`,
-      };
+      // const emailData = {
+      //   from: process.env.EMAIL_FROM,
+      //   to: email,
+      //   subject: 'Password reset link',
+      //   html: `
+      //     <h1> Please Click to link to reset your password !  </h1>
+      //     <p> ${process.env.CLIENT_URL}/user/password/reset/${token} </p>
+      //     <p> This email contains sensitive info </p>
+      //     <p> ${process.env.CLIENT_URL} </p>`,
+      // };
 
       return user.updateOne({ resetPasswordLink: token }, (err, success) => {
         if (err) {
           return res.status(400).json({ error: errorHandler(err) });
         } else {
-          sgMail
-            .send(emailData)
-            .then((sent) => {
-              return res.json({ message: `Email has been sent to ${email}` });
+          // sgMail
+          //   .send(emailData)
+          //   .then((sent) => {
+          //     return res.json({ message: `Email has been sent to ${email}` });
+          //   })
+          //   .catch((err) => {
+          //     console.log(err);
+          //     return res.json({ error: err.message });
+          //   });
+          async function main() {
+            let transporter = nodemailer.createTransport({
+              host: 'smtp.googlemail.com', // Gmail Host
+              port: 465, // Port
+              secure: true, // this is true as port is 465
+              auth: {
+                type: 'Oauth2',
+                user: 'vallecillospablo@gmail.com',
+                clientId:
+                  '139793166023-23ujo2m3273guo49gvot3jq04hcb8vrh.apps.googleusercontent.com',
+                clientSecret: 'oM2p9z0nknNY9U6Qos6xLPES',
+                refreshToken:
+                  '1//04D0qvB75v2yLCgYIARAAGAQSNwF-L9IrDTNax03XngMqwBiSMgSheRM7LwyhOjSqBSE4pdiH3PZX0omqHBVOjarE3-pgVvCWKBw',
+              },
+            });
+
+            // send mail with defined transport object
+            let info = await transporter.sendMail({
+              from: 'Pablo <vallecillospablo@gmail.com>', // sender address
+              to: email, // list of receivers
+              subject: 'Reset Email', // Subject line
+              //text: "Hello world?", // plain text body
+              html: `
+                <h1> Please Click to link to reset your password !  </h1>
+                <p> ${process.env.CLIENT_URL}/user/password/reset/${token} </p>
+                <p> This email contains sensitive info </p>
+                <p> ${process.env.CLIENT_URL} </p>
+              `, // html body
+            });
+
+            console.log('Message sent: %s', info.messageId);
+          }
+
+          main()
+            .then(() => {
+              return res.json({
+                message: `Email has been sent to ${email}`,
+              });
             })
             .catch((err) => {
               console.log(err);
-              return res.json({ error: err.message });
+              return res.status(400).json({
+                error: errorHandler(err),
+              });
             });
         }
       });
