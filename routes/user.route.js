@@ -15,8 +15,5 @@ router.post('/upload', requireSignin, uploadController);
 router.put('/user/update', requireSignin, updateController);
 router.put('/admin/update', requireSignin, adminMiddleware, updateController);
 
-router.get("/auth/facebook", passport.authenticate("facebook"));
-router.get("/auth/facebook/callback",
-    passport.authenticate("facebook"),
-    facebookController);
+
 module.exports = router;

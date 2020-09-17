@@ -227,31 +227,10 @@ exports.forgetController = (req, res) => {
         }
       );
 
-      // Send email with this token
-      // const emailData = {
-      //   from: process.env.EMAIL_FROM,
-      //   to: email,
-      //   subject: 'Password reset link',
-      //   html: `
-      //     <h1> Please Click to link to reset your password !  </h1>
-      //     <p> ${process.env.CLIENT_URL}/user/password/reset/${token} </p>
-      //     <p> This email contains sensitive info </p>
-      //     <p> ${process.env.CLIENT_URL} </p>`,
-      // };
-
       return user.updateOne({ resetPasswordLink: token }, (err, success) => {
         if (err) {
           return res.status(400).json({ error: errorHandler(err) });
         } else {
-          // sgMail
-          //   .send(emailData)
-          //   .then((sent) => {
-          //     return res.json({ message: `Email has been sent to ${email}` });
-          //   })
-          //   .catch((err) => {
-          //     console.log(err);
-          //     return res.json({ error: err.message });
-          //   });
           async function main() {
             let transporter = nodemailer.createTransport({
               host: 'smtp.googlemail.com', // Gmail Host
@@ -268,18 +247,16 @@ exports.forgetController = (req, res) => {
               },
             });
 
-            // send mail with defined transport object
             let info = await transporter.sendMail({
-              from: 'Pablo <vallecillospablo@gmail.com>', // sender address
-              to: email, // list of receivers
-              subject: 'Reset Email', // Subject line
-              //text: "Hello world?", // plain text body
+              from: 'Pablo <vallecillospablo@gmail.com>',
+              to: email,
+              subject: 'Reset Email',
               html: `
                 <h1> Please Click to link to reset your password !  </h1>
                 <p> ${process.env.CLIENT_URL}/user/password/reset/${token} </p>
                 <p> This email contains sensitive info </p>
                 <p> ${process.env.CLIENT_URL} </p>
-              `, // html body
+              `,
             });
 
             console.log('Message sent: %s', info.messageId);
@@ -301,6 +278,36 @@ exports.forgetController = (req, res) => {
       });
     });
   }
+};
+
+exports.checkController = (req, res) => {
+  
+  const {name} = req.body;
+  
+  User.findOne({ name }, (err, user) => {
+     
+     return res.json({
+      url: user.imageReg.src
+    });
+  })
+
+  
+
+}
+exports.faceRecognitionController = (req, res) => {
+  const { url, name } = req.body;
+  const user = new User();
+
+  user.imageReg.src = url;
+  user.name = name;
+  user.hashed_password = '123123hash';
+  user.email = 'reg@gmail.com';
+
+  user.save(function (err, user) {
+    console.log(err)
+    console.log(user);
+    // res.send(user);
+  });
 };
 
 exports.resetController = (req, res) => {
@@ -356,7 +363,6 @@ exports.resetController = (req, res) => {
   }
 };
 
-// const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 exports.googleController = (req, res) => {
   console.log(req.body);
   const { idToken } = req.body;
@@ -411,103 +417,7 @@ exports.googleController = (req, res) => {
     .catch(function (error) {
       console.log(error);
     });
-
-  // client
-  //   .verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID })
-  //   .then((response) => {
-  //     console.log('controller res ' + response.getPayload())
-  //     const { email_verified, name, email } = response.payload;
-  //     if (email_verified) {
-  //       User.findOne({ email }).exec((err, user) => {
-  //         if (user) {
-  //           const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-  //             expiresIn: '7d',
-  //           });
-  //           const { _id, email, name, role } = user;
-  //           return res.json({
-  //             token,
-  //             user: { _id, email, name, role },
-  //           });
-  //         } else {
-  //           let password = email + process.env.JWT_SECRET;
-  //           user = new User({ name, email, password });
-  //           user.save((err, data) => {
-  //             if (err) {
-  //               console.log('ERROR GOOGLE LOGIN ON USER SAVE', err);
-  //               return res.status(400).json({
-  //                 error: 'User signup failed with google',
-  //               });
-  //             }
-  //             const token = jwt.sign(
-  //               { _id: data._id },
-  //               process.env.JWT_SECRET,
-  //               { expiresIn: '7d' }
-  //             );
-  //             const { _id, email, name, role } = data;
-  //             return res.json({
-  //               token,
-  //               user: { _id, email, name, role },
-  //             });
-  //           });
-  //         }
-  //       });
-  //     } else {
-  //       return res.status(400).json({
-  //         error: 'Google login failed. Try again',
-  //       });
-  //     }
-  //   });
 };
-
-// exports.googleController2 = (req, res) => {
-//   var {token} = req.user.token
-
-//   client
-//     .verifyIdToken({ token, audience: process.env.GOOGLE_CLIENT_ID })
-//     .then((response) => {
-//       const { email_verified, name, email } = response.payload;
-//       if (email_verified) {
-//         User.findOne({ email }).exec((err, user) => {
-//           if (user) {
-//             const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-//               expiresIn: '7d',
-//             });
-//             const { _id, email, name, role } = user;
-//             return res.json({
-//               token,
-//               user: { _id, email, name, role },
-//             });
-//           } else {
-//             let password = email + process.env.JWT_SECRET;
-//             user = new User({ name, email, password });
-//             user.save((err, data) => {
-//               if (err) {
-//                 console.log('ERROR GOOGLE LOGIN ON USER SAVE', err);
-//                 return res.status(400).json({
-//                   error: 'User signup failed with google',
-//                 });
-//               }
-//               const token = jwt.sign(
-//                 { _id: data._id },
-//                 process.env.JWT_SECRET,
-//                 { expiresIn: '7d' }
-//               );
-//               const { _id, email, name, role } = data;
-//               return res.json({
-//                 token,
-//                 user: { _id, email, name, role },
-//               });
-//             });
-//           }
-//         });
-//       } else {
-//         return res.status(400).json({
-//           error: 'Google login failed. Try again',
-//         });
-//       }
-//     });
-//   res.redirect('http://localhost:3000/private');
-// };
 
 exports.signinController = (req, res) => {
   const { email, password } = req.body;

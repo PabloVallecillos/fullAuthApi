@@ -8,7 +8,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { storage } from '../firebase';
 
 const FileUpload = ({ history }) => {
-  
   const [isShown, setIsShown] = useState(false);
   const [imageProfile, setImageProfile] = useState('');
   const [file, setFile] = useState('');
@@ -67,8 +66,10 @@ const FileUpload = ({ history }) => {
     uploadTask.on(
       'state_changed',
       (snapshot) => {
-        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-        setUploadPercentage(progress)
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        setUploadPercentage(progress);
       },
       (error) => {
         console.log(error);
@@ -79,14 +80,13 @@ const FileUpload = ({ history }) => {
           .child(fileName)
           .getDownloadURL()
           .then(async (url) => {
-            
-            try{
+            try {
               const res = await axios.post(
                 `${process.env.REACT_APP_API_URL}/upload`,
                 { url },
-                { 
+                {
                   headers: {
-                  Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
                   },
                   onDownloadProgress: (progressEvent) => {
                     setUploadPercentage(
@@ -101,9 +101,9 @@ const FileUpload = ({ history }) => {
                 }
               );
               const { filePath } = res.data;
-              setImageProfile(filePath)
+              setImageProfile(filePath);
             } catch (err) {
-              console.log(err)
+              console.log(err);
             }
           });
       }

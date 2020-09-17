@@ -11,13 +11,14 @@ import open from '../assets/open.svg';
 import close from '../assets/close.svg';
 import '../assets/style.css';
 import Video from '../Components/Video';
+import VideoReg from '../Components/VideoReg';
 import FacebookLogin from 'react-facebook-login';
 import GoogleLogin2 from '../Components/GoogleLogin';
 import firebase from '../firebase';
 
 const Login = ({ history }) => {
-
   const [isTrue, setItTrue] = useState(false);
+  const [isTrue2, setItTrue2] = useState(false);
 
   const [FormData, setFormData] = useState({
     email: '',
@@ -31,6 +32,12 @@ const Login = ({ history }) => {
     setFormData({ ...FormData, [text]: e.target.value });
   };
 
+  const handleClose = () => {
+    setItTrue(false);
+  };
+  const handleClose2 = () => {
+    setItTrue2(false);
+  };
   // Submit data to backend
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -94,7 +101,6 @@ const Login = ({ history }) => {
         informParent(res);
       })
       .catch((error) => {
-        
         console.log('GOOGLE SIGNIN ERROR', error.response);
       });
   };
@@ -121,7 +127,7 @@ const Login = ({ history }) => {
         : history.push('/private');
     });
   };
-  
+
   const responseGoogle = (res) => {
     console.log(res);
     sendGoogleToken(res.tokenId);
@@ -137,7 +143,6 @@ const Login = ({ history }) => {
       .auth()
       .signInWithPopup(provider)
       .then(function (result) {
-        
         firebase
           .auth()
           .currentUser.getIdToken()
@@ -148,13 +153,11 @@ const Login = ({ history }) => {
               })
               .then((res) => {
                 console.log(JSON.stringify(res));
-                
+
                 informParent(res);
-                
               })
               .catch((err) => {
-                
-                console.log(err)
+                console.log(err);
               });
           })
           .catch(function (error) {
@@ -237,13 +240,6 @@ const Login = ({ history }) => {
             </form>
 
             <div className="flex flex-col items-center">
-              {/* <a
-                className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
-                href="http://localhost:5000/api/auth/google"
-                target="_blank"
-              >
-                Login google
-              </a> */}
               <button
                 className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
                 onClick={handleSubmitGoogle}
@@ -251,28 +247,20 @@ const Login = ({ history }) => {
                 Login google
               </button>
 
-              {/* <GoogleLogin
-                clientId={`${process.env.REACT_APP_GOOGLE_CLIENT_ID}`}
-                onSuccess={responseGoogle}
-                onFailure={responseGoogle}
-                cookiePolicy={'single_host_origin'}
-                render={(renderProps) => (
-                  <button
-                    onClick={renderProps.onClick}
-                    disabled={renderProps.disabled}
-                    className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
-                  >
-                    <div className=" p-2 rounded-full ">
-                      <i className="fab fa-google " />
-                    </div>
-                    <span className="ml-4">Sign In with Google</span>
-                  </button>
-                )}
-              ></GoogleLogin> */}
-          
               <button
                 onClick={() => {
                   setItTrue(true);
+                }}
+                className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline mt-5"
+              >
+                <div className=" p-2 rounded-full ">
+                  <i className="far fa-smile-wink"></i>
+                </div>
+                <span className="ml-4">Sign Up with Face Recognition</span>
+              </button>
+              <button
+                onClick={() => {
+                  setItTrue2(true);
                 }}
                 className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline mt-5"
               >
@@ -284,13 +272,21 @@ const Login = ({ history }) => {
               {isTrue && (
                 <div className="modalmio">
                   <div className="squaremio">
+                    <i onClick={handleClose} className="fas fa-times"></i>
                     <h1>FACE RECOGNITION</h1>
-
-                    
 
                     <Video />
                   </div>
                   {/* <div className="squaremio2"></div> */}
+                </div>
+              )}
+              {isTrue2 && (
+                <div className="modalmio">
+                  <div className="squaremio">
+                  <i onClick={handleClose2} class="fas fa-times"></i>
+                    Sign In with FACE
+                    <VideoReg />
+                  </div>
                 </div>
               )}
             </div>

@@ -4,16 +4,14 @@ const path = require('path');
 const fs = require('fs');
 
 exports.facebookController = (req, res) => {
-  
-  console.log(res)
-
-}
+  console.log(res);
+};
 
 exports.uploadController = (req, res) => {
   const { url } = req.body;
 
   User.findOne({ _id: req.user._id }, (err, user) => {
-    user.image.src = url;
+    user.imageProfile.src = url;
     if (err) {
       console.error(err);
       return res.status(500).send(err);
@@ -24,7 +22,6 @@ exports.uploadController = (req, res) => {
       filePath: url,
     });
   });
-  
 };
 
 exports.readController = (req, res) => {
@@ -71,7 +68,7 @@ exports.updateController = (req, res) => {
     }
 
     if (image) {
-      user.image = image;
+      user.imageProfile = image;
     }
 
     user.save((err, updatedUser) => {

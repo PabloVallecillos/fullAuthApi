@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as faceApi from 'face-api.js';
 import '../assets/style.css';
-import Progress from './Progress'
+import Progress from './Progress';
 import { storage } from '../firebase';
+import axios from 'axios';
 
 function Video() {
-
   const videoWidth = 640;
   const videoHeight = 480;
   const video = document.getElementById('video');
@@ -15,7 +15,25 @@ function Video() {
   const canvasRef = useRef();
   const canvasRefPicture = useRef();
   const snap = useRef();
-  const [uploadPercentage,setUploadPercentage] = useState(0)
+  const [uploadPercentage, setUploadPercentage] = useState(0);
+
+  const [file, setFile] = useState('');
+  const [fileName, setFileName] = useState('Choose File');
+
+  const [FormData, setFormData] = useState({
+    name: '',
+  });
+
+  const { name } = FormData;
+
+  const onChange = (e) => {
+    setFile(e.target.files[0]);
+    setFileName(e.target.files[0].name);
+  };
+  // Handle change from inputs
+  const handleChange = (text) => (e) => {
+    setFormData({ ...FormData, [text]: e.target.value });
+  };
 
   const constraints = {
     audio: false,
@@ -43,11 +61,13 @@ function Video() {
   var button = document.createElement('button');
 
   const handleCaptureVideo = (e) => {
-    canvasRefPicture.current
-      .getContext('2d')
-      .drawImage(videoRef.current, 0, 0, 640, 480);
-    document.getElementById('download').style.display = 'block';
-    document.getElementById('download2').style.display = 'block';
+    if (canvasRefPicture.current) {
+      canvasRefPicture.current
+        .getContext('2d')
+        .drawImage(videoRef.current, 0, 0, 640, 480);
+      document.getElementById('download').style.display = 'block';
+      document.getElementById('download2').style.display = 'block';
+    }
   };
 
   // download canvas
@@ -81,35 +101,44 @@ function Video() {
         setInitialize(false);
       }
       try {
-        canvasRef.current.innerHTML = faceApi.createCanvasFromMedia(
-          videoRef.current
-        );
+        if (canvasRef.current) {
+          canvasRef.current.innerHTML = faceApi.createCanvasFromMedia(
+            videoRef.current
+          );
+          const displaySize = {
+            width: videoWidth,
+            height: videoHeight,
+          };
 
-        const displaySize = {
-          width: videoWidth,
-          height: videoHeight,
-        };
+          faceApi.matchDimensions(canvasRef.current, displaySize);
 
-        faceApi.matchDimensions(canvasRef.current, displaySize);
+          const detections = await faceApi
+            .detectAllFaces(
+              videoRef.current,
+              new faceApi.TinyFaceDetectorOptions()
+            )
+            .withFaceLandmarks()
+            .withFaceExpressions();
 
-        const detections = await faceApi
-          .detectAllFaces(
-            videoRef.current,
-            new faceApi.TinyFaceDetectorOptions()
-          )
-          .withFaceLandmarks()
-          .withFaceExpressions();
-
-        const resizedDetections = faceApi.resizeResults(
-          detections,
-          displaySize
-        );
-        canvasRef.current
-          .getContext('2d')
-          .clearRect(0, 0, videoWidth, videoHeight);
-        faceApi.draw.drawDetections(canvasRef.current, resizedDetections);
-        faceApi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
-        faceApi.draw.drawFaceExpressions(canvasRef.current, resizedDetections);
+          const resizedDetections = faceApi.resizeResults(
+            detections,
+            displaySize
+          );
+          if (canvasRef.current) {
+            canvasRef.current
+              .getContext('2d')
+              .clearRect(0, 0, videoWidth, videoHeight);
+            faceApi.draw.drawDetections(canvasRef.current, resizedDetections);
+            faceApi.draw.drawFaceLandmarks(
+              canvasRef.current,
+              resizedDetections
+            );
+            faceApi.draw.drawFaceExpressions(
+              canvasRef.current,
+              resizedDetections
+            );
+          }
+        }
 
         // alert(detections);
       } catch (err) {
@@ -118,58 +147,6 @@ function Video() {
     }, 100);
   };
 
-  // const uploadFirebase = () => {
-  //   const uploadTask = storage
-  //     .ref(`${isAuth().name}/profileImage/${fileName}`)
-  //     .put(file);
-
-  //   uploadTask.on(
-  //     'state_changed',
-  //     (snapshot) => {
-  //       const progress = Math.round(
-  //         (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-  //       );
-  //       setUploadPercentage(progress);
-  //     },
-  //     (error) => {
-  //       console.log(error);
-  //     },
-  //     () => {
-  //       storage
-  //         .ref(`${isAuth().name}/profileImage`)
-  //         .child(fileName)
-  //         .getDownloadURL()
-  //         .then(async (url) => {
-  //           try {
-  //             const res = await axios.post(
-  //               `${process.env.REACT_APP_API_URL}/upload`,
-  //               { url },
-  //               {
-  //                 headers: {
-  //                   Authorization: `Bearer ${token}`,
-  //                 },
-  //                 onDownloadProgress: (progressEvent) => {
-  //                   setUploadPercentage(
-  //                     parseInt(
-  //                       Math.round(
-  //                         (progressEvent.loaded * 100) / progressEvent.total
-  //                       )
-  //                     )
-  //                   );
-  //                   setTimeout(() => setUploadPercentage(0), 5000);
-  //                 },
-  //               }
-  //             );
-  //             const { filePath } = res.data;
-  //             setImageProfile(filePath);
-  //           } catch (err) {
-  //             console.log(err);
-  //           }
-  //         });
-  //     }
-  //   );
-  // };
-
   const uploadImg = (e) => {
     document.getElementById('nofile').style.display = 'block';
     e.target.parentElement.parentElement.remove();
@@ -177,8 +154,10 @@ function Video() {
       const image = await faceApi.bufferToImage(
         document.getElementById('upload').files[0]
       );
+      
       const canvas = faceApi.createCanvasFromMedia(image);
       canvas.id = 'absolu';
+      
 
       document.getElementById('upload').parentElement.append(canvas);
       const displaySize = { width: image.width, height: image.height };
@@ -190,6 +169,7 @@ function Video() {
         .withFaceDescriptors();
       document.getElementById('upload').parentElement.append(image);
       document.getElementById('nofile2').style.display = 'block';
+      document.getElementById('nofile3').style.display = 'block';
       // console.log(detections.length)
       const resizedDetections = faceApi.resizeResults(detections, displaySize);
       resizedDetections.forEach((detection) => {
@@ -200,103 +180,71 @@ function Video() {
     });
   };
 
-  // const onSubmit = async (e) => {
-  //   // const token = getCookie('token');
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const uploadTask = storage
+      .ref(`${name}_REG/profileImageREG/${fileName}`)
+      .put(file);
 
-  //   e.preventDefault();
-
-  //   const uploadTask = storage
-  //     .ref(`${name}/profileImageREG/${fileName}`)
-  //     .put(file);
-
-  //   // uploadTask.on(
-  //   //   'state_changed',
-  //   //   (snapshot) => {
-  //   //     const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-  //   //     setUploadPercentage(progress)
-  //   //   },
-  //   //   (error) => {
-  //   //     console.log(error);
-  //   //   },
-  //   //   () => {
-  //   //     storage
-  //   //       .ref(`${name}/profileImageREG`)
-  //   //       .child(fileName)
-  //   //       .getDownloadURL()
-  //   //       .then(async (url) => {
-            
-  //   //         try{
-  //   //           const res = await axios.post(
-  //   //             `${process.env.REACT_APP_API_URL}/upload`,
-  //   //             { url },
-  //   //             { 
-  //   //               headers: {
-  //   //               // Authorization: `Bearer ${token}`
-  //   //               },
-  //   //               onDownloadProgress: (progressEvent) => {
-  //   //                 setUploadPercentage(
-  //   //                   parseInt(
-  //   //                     Math.round(
-  //   //                       (progressEvent.loaded * 100) / progressEvent.total
-  //   //                     )
-  //   //                   )
-  //   //                 );
-  //   //                 setTimeout(() => setUploadPercentage(0), 5000);
-  //   //               },
-  //   //             }
-  //   //           );
-  //   //           const { filePath } = res.data;
-  //   //           // setImageProfile(filePath)
-  //   //         } catch (err) {
-  //   //           console.log(err)
-  //   //         }
-  //   //       });
-  //   //   }
-  //   // );
-  // };
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        setUploadPercentage(progress);
+      },
+      (error) => {
+        console.log(error);
+      },
+      () => {
+        storage
+          .ref(`${name}_REG/profileImageREG`)
+          .child(fileName)
+          .getDownloadURL()
+          .then(async (url) => {
+            try {
+              const res = await axios.post(
+                `${process.env.REACT_APP_API_URL}/uploadFace`,
+                { url, name },
+                {
+                  onDownloadProgress: (progressEvent) => {
+                    setUploadPercentage(
+                      parseInt(
+                        Math.round(
+                          (progressEvent.loaded * 100) / progressEvent.total
+                        )
+                      )
+                    );
+                    setTimeout(() => setUploadPercentage(0), 5000);
+                  },
+                }
+              );
+            } catch (err) {
+              console.log(err);
+            }
+          });
+      }
+    );
+  };
 
   return (
     <div>
       <div id="nofile">
         Upload file
-
-        {/* <form
-        className=" border border-dashed-100 text-center flex-col z-40"
-        onSubmit={onSubmit}
-      >
-        <div className="flex flex-wrap justify-center">
-          <div className="w-full lg:w-9/12 px-4 flex justify-center ">
-            <label className="items-center px-4 py-6 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue hover:text-white fileUpload">
-              <svg
-                className="w-8 h-8"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-              >
-                <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z" />
-              </svg>
-              <span className="mt-2 text-base leading-normal">{fileName}</span>
-              <input type="file" onChange={onChange} className="hidden" />
-            </label>
-
-            <button
-              href="#pablo"
-              className="bg-pink-500 active:bg-pink-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none"
-              type="submit"
-            >
-              Upload
-            </button>
-
-            <Progress percentage={uploadPercentage} />
-          </div>
-        </div>
-      </form> */}
-         <input id="upload" type="file"></input>
-        
-         <button id="nofile2" >    
-          {' '}
-          UploadImage and then sign in{' '}
-        </button>
+        <form onSubmit={onSubmit}>
+          <input id="upload" type="file" onChange={onChange}></input>
+          <input
+            id="nofile3"
+            type="text"
+            placeholder="Enter your fuck name"
+            onChange={handleChange('name')}
+          />
+          <Progress percentage={uploadPercentage} />
+          <button type="submit" id="nofile2">
+            UploadImage and then sign in
+          </button>
+        </form>
       </div>
       <div className="videoReg">
         <video

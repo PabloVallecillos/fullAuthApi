@@ -15,7 +15,11 @@ const userScheama = new mongoose.Schema(
       trim: true,
       required: true,
     },
-    image: {
+    imageProfile: {
+      src: String,
+      default: '',
+    },
+    imageReg: {
       src: String,
       default: '',
     },
@@ -35,7 +39,7 @@ const userScheama = new mongoose.Schema(
     emailVerifiedAt: {
       type: Date,
       default: null,
-    }
+    },
   },
   {
     timestamps: true,

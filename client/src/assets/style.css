@@ -53,7 +53,7 @@
 .modalmio {
   position: absolute;
   width: 100vw;
-  height: calc(110vh + 100px);
+  height: calc(110vh + 400px);
   top: 0;
   right: 0;
   display: flex;
@@ -106,10 +106,12 @@
       width: 88vw;
     }
 }
+
+
 #absolu{
   position: absolute;
 }
-#download, #download2, #nofile, #nofile2{
+#download, #download2, #nofile, #nofile2, #nofile3{
   display: none;
 }
 @media only screen and ( max-width: 1026px ){
