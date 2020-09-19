@@ -7,7 +7,6 @@ const {
   readController,
   updateController,
   uploadController,
-  facebookController
 } = require('../controllers/user.controller');
 
 router.get('/user/:id', requireSignin, readController);

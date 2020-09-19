@@ -5,18 +5,16 @@ import 'react-toastify/dist/ReactToastify.css';
 import { authenticate, isAuth } from '../helpers/auth';
 import axios from 'axios';
 import { Redirect } from 'react-router-dom';
-import { GoogleLogin } from 'react-google-login';
-// import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
+
 import open from '../assets/open.svg';
 import close from '../assets/close.svg';
 import '../assets/style.css';
 import Video from '../Components/Video';
 import VideoReg from '../Components/VideoReg';
-import FacebookLogin from 'react-facebook-login';
-import GoogleLogin2 from '../Components/GoogleLogin';
-import firebase from '../firebase';
+import GoogleLogin from '../Components/GoogleLogin';
 
 const Login = ({ history }) => {
+
   const [isTrue, setItTrue] = useState(false);
   const [isTrue2, setItTrue2] = useState(false);
 
@@ -35,9 +33,11 @@ const Login = ({ history }) => {
   const handleClose = () => {
     setItTrue(false);
   };
+
   const handleClose2 = () => {
     setItTrue2(false);
   };
+
   // Submit data to backend
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -71,14 +71,13 @@ const Login = ({ history }) => {
             password1: '',
             password2: '',
           });
-          // console.log(err.response);
-          // toast.error(err.response.data.error);
           console.log(err);
         });
     } else {
       toast.error('Please fill all fields');
     }
   };
+
   const fuck = (e) => {
     let password = e.target.nextSibling;
 
@@ -90,88 +89,19 @@ const Login = ({ history }) => {
       e.target.src = close;
     }
   };
-  const sendFacebookToken = (userID, accessToken) => {
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/facebooklogin`, {
-        userID,
-        accessToken,
-      })
-      .then((res) => {
-        console.log(res.data);
-        informParent(res);
-      })
-      .catch((error) => {
-        console.log('GOOGLE SIGNIN ERROR', error.response);
-      });
-  };
-  const sendGoogleToken = (tokenId) => {
-    console.log(tokenId);
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/googlelogin`, {
-        idToken: tokenId,
-      })
-      .then((res) => {
-        console.log(res.data);
-        informParent(res);
-      })
-      .catch((err) => {
-        alert(err);
-        toast.error('GOOGLE SIGNIN ERROR', err.response);
-      });
-  };
 
-  const informParent = (res) => {
-    authenticate(res, () => {
-      isAuth() && isAuth.role === 'admin'
-        ? history.push('/admin')
-        : history.push('/private');
-    });
-  };
+// Redirect
+const informParent = (res) => {
+  authenticate(res, () => {
+    console.log(isAuth())
+    isAuth() && isAuth.role === 'admin'
+      ? history.push('/admin')
+      : history.push('/private');
+  });
+};
 
-  const responseGoogle = (res) => {
-    console.log(res);
-    sendGoogleToken(res.tokenId);
-  };
-  const responseFacebook = (response) => {
-    console.log(response);
-    sendFacebookToken(response.userID, response.accessToken);
-  };
 
-  const handleSubmitGoogle = () => {
-    var provider = new firebase.auth.GoogleAuthProvider();
-    firebase
-      .auth()
-      .signInWithPopup(provider)
-      .then(function (result) {
-        firebase
-          .auth()
-          .currentUser.getIdToken()
-          .then(function (idToken) {
-            axios
-              .post(`${process.env.REACT_APP_API_URL}/googlelogin`, {
-                idToken: idToken,
-              })
-              .then((res) => {
-                console.log(JSON.stringify(res));
 
-                informParent(res);
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-
-        // var user = result.user;
-        // console.log('firebase  ' + user)
-        // // ...
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  };
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
@@ -240,12 +170,7 @@ const Login = ({ history }) => {
             </form>
 
             <div className="flex flex-col items-center">
-              <button
-                className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
-                onClick={handleSubmitGoogle}
-              >
-                Login google
-              </button>
+              <GoogleLogin />
 
               <button
                 onClick={() => {

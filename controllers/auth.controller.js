@@ -198,6 +198,43 @@ exports.loginController = (req, res) => {
   }
 };
 
+exports.checkFaceController = (req, res) => {
+  const { name } = req.body;
+
+  User.findOne({
+    name,
+  }).exec((err, user) => {
+    if (err || !user) {
+      return res.status(422).json({
+        error:
+          "User with that name don't exist, Please Sign up with Face Recognition",
+      });
+    }
+
+    // Generate token
+    const token = jwt.sign(
+      {
+        _id: user._id,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '7d',
+      }
+    );
+
+    const { _id, name, email, role } = user;
+    return res.json({
+      token,
+      user: {
+        _id,
+        name,
+        email,
+        role,
+      },
+    });
+  });
+};
+
 exports.forgetController = (req, res) => {
   const { email } = req.body;
 
@@ -281,19 +318,15 @@ exports.forgetController = (req, res) => {
 };
 
 exports.checkController = (req, res) => {
-  
-  const {name} = req.body;
-  
+  const { name } = req.body;
+
   User.findOne({ name }, (err, user) => {
-     
-     return res.json({
-      url: user.imageReg.src
+    return res.json({
+      url: user.imageReg.src,
     });
-  })
+  });
+};
 
-  
-
-}
 exports.faceRecognitionController = (req, res) => {
   const { url, name } = req.body;
   const user = new User();
@@ -301,10 +334,10 @@ exports.faceRecognitionController = (req, res) => {
   user.imageReg.src = url;
   user.name = name;
   user.hashed_password = '123123hash';
-  user.email = 'reg@gmail.com';
+  user.email = `${name}@gmail.com`;
 
   user.save(function (err, user) {
-    console.log(err)
+    console.log(err);
     console.log(user);
     // res.send(user);
   });

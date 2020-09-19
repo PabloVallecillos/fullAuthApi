@@ -3,10 +3,6 @@ const expressJwt = require('express-jwt');
 const path = require('path');
 const fs = require('fs');
 
-exports.facebookController = (req, res) => {
-  console.log(res);
-};
-
 exports.uploadController = (req, res) => {
   const { url } = req.body;
 
@@ -41,7 +37,7 @@ exports.readController = (req, res) => {
 
 exports.updateController = (req, res) => {
   // console.log('UPDATE USER - req.user', req.user, 'UPDATE DATA', req.body);
-  const { name, password, image } = req.body;
+  const { name, password, image, email } = req.body;
 
   User.findOne({ _id: req.user._id }, (err, user) => {
     if (err || !user) {
@@ -55,6 +51,13 @@ exports.updateController = (req, res) => {
       });
     } else {
       user.name = name;
+    }
+    if (!email) {
+      return res.status(400).json({
+        error: 'Email is required',
+      });
+    } else {
+      user.email = email;
     }
 
     if (password) {

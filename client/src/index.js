@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, useHistory } from 'react-router-dom';
 import Register from './Screens/Register';
 import Activate from './Screens/Activate';
 import Login from './Screens/Login';
@@ -9,6 +9,7 @@ import Forget from './Screens/Forget';
 import Reset from './Screens/Reset';
 import Upload from './Screens/Upload';
 import Private from './Screens/Private';
+import VideoReg from './Components/VideoReg';
 import 'react-toastify/dist/ReactToastify.css';
 import AuthRoute from './Routes/AuthRoute';
 
@@ -30,7 +31,7 @@ ReactDOM.render(
         render={(props) => <Activate {...props} />}
       />
 
-      <Route path="/login" exact render={(props) => <Login {...props} />} />
+      <Route path="/login" exact render={(props) => <Login {...props} /> } />
 
       <Route
         path="/user/password/forget"
@@ -44,7 +45,6 @@ ReactDOM.render(
         render={(props) => <Reset {...props} />}
       />
 
-      <AuthRoute path="/uploadFile" exact component={Upload} />
       <AuthRoute path="/private" exact component={Private} />
 
     </Switch>

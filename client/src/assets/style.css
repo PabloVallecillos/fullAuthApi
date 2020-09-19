@@ -107,7 +107,22 @@
     }
 }
 
+#check{
+  background-color: black;
+  color: white;
+}
 
+#check:disabled,
+#check[disabled]{
+  background-color: #cccccc;
+  color: #666666;
+}
+#check:disabled:hover{
+  cursor: progress;
+}
+#recognition {
+  display: none;
+}
 #absolu{
   position: absolute;
 }

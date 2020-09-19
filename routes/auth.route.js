@@ -20,6 +20,7 @@ const {
   facebookController,
   faceRecognitionController,
   checkController,
+  checkFaceController
 } = require('../controllers/auth.controller.js');
 
 router.post('/register', validSign, registerController);
@@ -31,6 +32,7 @@ router.post('/googlelogin', googleController);
 router.post('/facebooklogin', facebookController);
 router.post('/uploadFace', faceRecognitionController);
 router.post('/check', checkController);
+router.post('/checkLogin', checkFaceController);
 
 
 
