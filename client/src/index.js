@@ -9,6 +9,7 @@ import Forget from './Screens/Forget';
 import Reset from './Screens/Reset';
 import Upload from './Screens/Upload';
 import Private from './Screens/Private';
+import Play from './Screens/Play';
 import VideoReg from './Components/VideoReg';
 import 'react-toastify/dist/ReactToastify.css';
 import AuthRoute from './Routes/AuthRoute';
@@ -46,6 +47,7 @@ ReactDOM.render(
       />
 
       <AuthRoute path="/private" exact component={Private} />
+      <AuthRoute path="/playground" exact component={Play} />
 
     </Switch>
   </BrowserRouter>,
