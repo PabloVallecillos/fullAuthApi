@@ -1,35 +1,30 @@
 import React from 'react';
-import { updateUser, isAuth, getCookie, signout } from './helpers/auth'
+import { updateUser, isAuth, getCookie, signout } from './helpers/auth';
+import Navbar from './Components/Nav/Nav';
+import DropdownMenu from './Components/Nav/DropdownMenu';
+import NavItem from './Components/Nav/NavItem';
+import NavItemLogo from './Components/Nav/NavItemLogo';
+import TravelMap from './Components/Screen1/TravelMap';
+import {ReactComponent as Bell} from './assets/iconNav/bell.svg';
+import {ReactComponent as Settings} from './assets/iconNav/settings.svg';
+import {ReactComponent as Left} from './assets/iconNav/left.svg';
 
 function App({ history }) {
-  console.log(history)
 
-  const handleLogout = () => {
-    signout(() => {
-      history.push('/login');
-    })
-  }
-  
   return (
     <div className="App">
-      {!isAuth() && 
-        <a
-          href="login"
-        >
-          login
-        </a>
-      }
-      
-      <a
-          className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3
-    bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline mt-5"
-          href="/"
-          target="_self"
-          onClick={handleLogout}
-        >
-          <i className="fas fa-sign-in-alt fa 1x w-6  -ml-2 text-indigo-500" />
-                  <span className="ml-4">Sign out</span>
-        </a>
+      {/* Nav */}
+        <Navbar>
+          <NavItemLogo />
+          <NavItem icon={<Settings />}>
+            <DropdownMenu></DropdownMenu>
+          </NavItem>
+        </Navbar>
+      {/* Nav */}
+
+      {/* Screen1: Map Travel Log  100vh */}
+        <TravelMap />
+      {/* Screen1: Map Travel Log  100vh */}
     </div>
   );
 }

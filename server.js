@@ -7,6 +7,8 @@ const fileUpload = require('express-fileupload');
 const path = require('path');
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
+const logs = require('./api/logs');
+
 // Config .env to ./config/config.env
 require('dotenv').config({
   path: './config/config.env',
@@ -52,6 +54,7 @@ app.use(passport.initialize());
 app.use(fileUpload());
 app.use('/api/', authRouter);
 app.use('/api/', userRouter);
+app.use('/api/logs', logs);
 app.use((req, res, next) => {
   res.status(404).json({
     success: false,
