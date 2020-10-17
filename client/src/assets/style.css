@@ -162,12 +162,76 @@ a.ula {
   cursor: pointer;
   margin-right: 10px;
 }
+.markerAdd {
+  transform: translate(-50%, -100%);
+}
+.popup {
+  width: 30vw;
+
+  padding: 1rem;
+}
+.entry-form label,
+.entry-form input,
+.entry-form textarea,
+.entry-form button {
+  font-size: 2rem;
+  margin: 0.5rem;
+  width: 100%;
+}
+
+.border-black{
+  border: 1px solid black;
+  width: 250px !important;
+}
+
+.width-btn{
+  width: 98% !important;
+}
+
+.entry-form{
+  display: flex;
+  flex-direction: column;
+}
 
 .fileUpload {
   margin: 0 !important;
 }
+
 .fileUpload:hover {
   color: red;
+}
+
+.hoverInfo{
+  cursor: help;
+}
+
+.customLegend{
+  width: 250px;
+  transition: all var(--speed) ease;
+}
+.customLegendTransition{
+  transform: translateX(0%) !important;
+  transition: all var(--speed) ease;
+}
+@media only screen and (min-width: 650px) {
+  .customLegendIcon {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
+.customLegendIcon {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  margin-right: 10px;
+  transition: all var(--speed) ease;
+}
+
+.hover {
+  cursor: pointer;
 }
 
 .progress {
