@@ -7,11 +7,11 @@ import marker from '../../assets/marker.svg';
 import legend from '../../assets/legend.svg';
 import '../../assets/style.css';
 import LogEntryForm from './LogEntryForm';
-import { CSSTransition } from 'react-transition-group';
+import SlideToggleContent from '../SlideToggleContent/SlideToggleContent';
 
 function TravelMap() {
     const [logEntries, setLogEntries] = useState([]);
-    const [show, setShow] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
     const [showPopup, setShowPopup] = useState({});
     const [addEntryLocation, setAddEntryLocation] = useState(null);
     const [viewport, setViewport] = useState({
@@ -77,27 +77,31 @@ function TravelMap() {
                     />
                     <div
                         className="absolute top-0 right-0 bg-white p-0 customLegendIcon flex flex-column rounded-sm hover"
-                        onMouseEnter={() => setShow(true)}
+                        onClick={() => setIsVisible(!isVisible)}
                     >
                         <img src={legend}></img>
                     </div>
                     {/* https://medium.com/@robbertvancaem/using-react-spring-for-a-simple-hover-state-2a75beef6930 */}
-                    {show && (
+
                         <div
-                            className="absolute top-0 right-0 bg-white p-1 mr-2 mt-2 customLegend hoverInfo flex flex-column rounded-sm"
-                            onMouseLeave={() => (setShow(false))}
+                            className="absolute top-0 right-0 bg-white p-1 customLegend hoverInfo flex flex-column rounded-sm"
+                            onClick={() => setIsVisible(!isVisible)}
                         >
-                            <h5 className="align-self-center m-0 p-0 mt-1 mb-2">Legend</h5>
-                            <hr className="m-0"></hr>
-                            <div className="mt-2 mb-2">
+                            <SlideToggleContent isVisible={isVisible} style={'ease'}>
+                                <>
+                                <h5 className="align-self-center m-0 p-0 mt-1 mb-2">Legend</h5>
+                                <hr className="m-0"></hr>
+                                <div className="mt-2 mb-2">
                                 {logEntries.map((entry) => (
                                     <React.Fragment key={entry._id}>
                                         <p className="m-0 p-0 flex"> <img className="mr-2 ml-2" src={marker} width="20"></img> {entry.title}</p>
                                     </React.Fragment>
                                 ))}
-                            </div>
+                                </div>
+                                </>
+                            </SlideToggleContent>
                         </div>
-                    )}
+
                     {logEntries.map((entry) => (
                         <React.Fragment key={entry._id}>
                             <Marker
@@ -124,7 +128,9 @@ function TravelMap() {
                                         src={marker}
                                         alt="marker"
                                     ></img>
-                                    {entry.title}
+                                    <div className="bg-white p-1 rounded-sm">
+                                        {entry.title}
+                                    </div>
                                 </div>
                             </Marker>
                             {showPopup[entry._id] && (
@@ -142,6 +148,7 @@ function TravelMap() {
                                     >
                                         <h3>{entry.title}</h3>
                                         <p>{entry.comments}</p>
+                                        <img src={entry.image}></img>
                                         <small>
                                         Visited on: {new Date(entry.visitDate).toLocaleDateString()}
                                         </small>
@@ -195,4 +202,4 @@ function TravelMap() {
     )
 }
 
-export default TravelMap
+export default TravelMap;

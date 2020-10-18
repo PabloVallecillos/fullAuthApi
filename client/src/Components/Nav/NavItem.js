@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../../assets/style.css';
-
+// import SlideToggleContent from '../SlideToggleContent/SlideToggleContent';
 function NavItem(props) {
 
     const [open, setOpen] = useState(false);
@@ -10,8 +10,9 @@ function NavItem(props) {
             <a href="#" className="icon-button" onClick={() => setOpen(!open)}>
                 {props.icon}
             </a>
-
-            {open && props.children}
+            {open &&
+                props.children
+            }
         </li>
     );
 }

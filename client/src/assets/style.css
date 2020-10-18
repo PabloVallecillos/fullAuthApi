@@ -59,7 +59,7 @@ div.dropdown {
   border-radius: var(--border-radius);
   padding: 1rem;
   overflow: hidden;
-  z-index: 2;
+  z-index: 4;
   transition: height var(--speed) ease;
 }
 
@@ -167,30 +167,24 @@ a.ula {
 }
 .popup {
   width: 30vw;
-
+  z-index: 2 !important;
   padding: 1rem;
 }
 .entry-form label,
 .entry-form input,
 .entry-form textarea,
 .entry-form button {
-  font-size: 2rem;
   margin: 0.5rem;
-  width: 100%;
+  width: 200px;
 }
 
 .border-black{
   border: 1px solid black;
-  width: 250px !important;
+  width: calc(100% - 15vw)!important;
 }
 
 .width-btn{
   width: 98% !important;
-}
-
-.entry-form{
-  display: flex;
-  flex-direction: column;
 }
 
 .fileUpload {
@@ -206,8 +200,9 @@ a.ula {
 }
 
 .customLegend{
-  width: 250px;
-  transition: all var(--speed) ease;
+  margin-top: 10px;
+  margin-right: 10px;
+  z-index: 2;
 }
 .customLegendTransition{
   transform: translateX(0%) !important;
@@ -228,12 +223,16 @@ a.ula {
   margin-top: 10px;
   margin-right: 10px;
   transition: all var(--speed) ease;
+  z-index: 2;
 }
 
 .hover {
   cursor: pointer;
+  z-index: 1 !important;
 }
-
+.mapboxgl-popup {
+  z-index: 2 !important;
+}
 .progress {
   width: 249px;
   position: absolute;

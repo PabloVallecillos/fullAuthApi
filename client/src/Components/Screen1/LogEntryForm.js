@@ -21,13 +21,12 @@ const LogEntryForm = ({ location, onClose }) => {
     }
   };
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="entry-form">
+    <form onSubmit={handleSubmit(onSubmit)} className="entry-form flex flex-column">
       {error ? <h3>{error}</h3> : null}
       <div className="flex">
         <label htmlFor="title" className="flex-1"> Title </label>
-        <input name="title" required ref={register} className="border-black flex-2" />
+        <input name="title" required ref={register} className="border-black flex-2"/>
       </div>
-
       <div className="flex">
         <label htmlFor="comments" className="flex-1"> Comments </label>
         <textarea name="comments" rows={3} ref={register} className="border-black flex-2" />
